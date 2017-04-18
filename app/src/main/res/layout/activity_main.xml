@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.terry.strat_rpg.MainActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:background="@android:color/background_dark"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_editor_absoluteY="256dp" />
+
+    <ImageView
+        android:id="@+id/background_one"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/seamless_background"
+        android:scaleType = "centerCrop"
+        android:layout_alignParentTop="true"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+    <ImageView
+        android:id="@+id/background_two"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/seamless_background"
+        android:scaleType = "centerCrop"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        >
+
+        <Button
+            android:id="@+id/newGameButton"
+            android:layout_width="225dp"
+            android:layout_height="51dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_style"
+            android:hapticFeedbackEnabled="true"
+            android:shadowColor="#0C16A8"
+            android:shadowDx="-3"
+            android:shadowDy="-3"
+            android:shadowRadius="5"
+            android:text="new game"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/loadGameButton"
+            android:layout_width="225dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="10sp"
+            android:layout_weight="1"
+            android:background="@drawable/button_style"
+            android:hapticFeedbackEnabled="true"
+            android:shadowColor="#0C16A8"
+            android:shadowDx="-3"
+            android:shadowDy="-3"
+            android:shadowRadius="5"
+            android:text="load game"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/options_button"
+            android:layout_width="225dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="10sp"
+            android:background="@drawable/button_style"
+            android:elegantTextHeight="false"
+            android:elevation="0dp"
+            android:hapticFeedbackEnabled="true"
+            android:shadowColor="#0C16A8"
+            android:shadowDx="-3"
+            android:shadowDy="-3"
+            android:shadowRadius="5"
+            android:text="options"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp" />
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/versionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:textColor="#ffffff"
+        />
+
+    <TextView
+        android:id="@+id/companyTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="#ffffff"
+
+        />
+
+</RelativeLayout>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context="com.example.terry.strat_rpg.Game">
+
+    <!-- Scrolling Background Image 1 -->
+    <ImageView
+        android:id="@+id/background_one"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/seamless_background"
+        android:scaleType = "centerCrop"
+        android:layout_alignParentTop="true"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+    <!-- Scrolling Background Image 2 -->
+    <ImageView
+        android:id="@+id/background_two"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/seamless_background"
+        android:scaleType = "centerCrop"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <!-- Linear Layout to organize Progress Bar, Stats, Player / Monster, and Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <!-- Relative Layout for the Player and Monster Images -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <!-- Player Image -->
+            <ImageView
+                android:id="@+id/player_image"
+                android:layout_width="wrap_content"
+                android:layout_height="75dp"
+                app:srcCompat="@drawable/crusader_placeholder"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="18dp" />
+
+            <!-- Monster Image -->
+            <ImageView
+                android:id="@+id/monster_image"
+                android:layout_width="wrap_content"
+                android:layout_height="75dp"
+                app:srcCompat="@drawable/slime_monster"
+                android:layout_alignTop="@+id/player_image"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                tools:ignore="ContentDescription" />
+        </RelativeLayout>
+
+        <!-- Toolbar for Equipment, Talents, and Options -->
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/equipmentToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:background="@drawable/toolbar_style"
+            android:minHeight="?attr/actionBarSize">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- Layout to organize Equipment -->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/armor_icon_layout"
+                    android:layout_weight="0.36">
+                    <ImageView
+                        android:id="@+id/upgrade_toolbar_armor_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:src="@raw/armor_icon"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:paddingStart="10dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="22dp"
+                        android:text="Equipment"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/upgrade_toolbar_armor_icon"
+                        android:layout_toEndOf="@id/upgrade_toolbar_armor_icon" />
+                </RelativeLayout>
+
+
+                <!-- Layout to organize Talents -->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/talents_icon_layout"
+                    android:layout_weight="1"
+                    android:background="@drawable/load_game_background">
+
+                    <ImageView
+                        android:id="@+id/upgrade_toolbar_talents_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:src="@raw/item_icon"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:paddingLeft="15dp"
+                        android:paddingStart="15dp"
+                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="22dp"
+                        android:text="Talents"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/upgrade_toolbar_talents_icon"
+                        android:layout_toEndOf="@id/upgrade_toolbar_talents_icon" />
+                </RelativeLayout>
+
+
+                <!-- Layout to organize Settings -->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/settings_icon_layout"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:id="@+id/upgrade_toolbar_settings_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:src="@raw/sword_icon"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingLeft="15dp"
+                        android:paddingStart="15dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="22dp"
+                        android:text="Settings"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/upgrade_toolbar_settings_icon"
+                        android:layout_toEndOf="@id/upgrade_toolbar_settings_icon"/>
+                </RelativeLayout>
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+    </LinearLayout>
+</RelativeLayout>

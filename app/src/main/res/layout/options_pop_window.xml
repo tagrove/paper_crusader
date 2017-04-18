@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/menu_style"
+    android:orientation="vertical"
+
+    android:hapticFeedbackEnabled="true"
+    android:shadowColor="#000000"
+    android:shadowDx="-3"
+    android:shadowDy="-3"
+    android:shadowRadius="5"
+    android:weightSum="1"
+    android:gravity="center">
+
+
+    <!-- Sound Effects Volume -->
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="22dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/soundText"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="20dp"
+            android:text="Sound Effects Volume"
+            android:textSize="20dp" />
+
+        <ImageView
+            android:id="@+id/soundDecreaseVolume"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_alignTop="@+id/soundVolumeRatingBar"
+            android:layout_toLeftOf="@+id/soundVolumeRatingBar"
+
+            android:src="@drawable/left_arrow" />
+
+        <ImageView
+            android:id="@+id/soundIncreaseVolume"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_alignTop="@+id/soundVolumeRatingBar"
+            android:layout_toRightOf="@+id/soundVolumeRatingBar"
+            android:src="@drawable/right_arrow" />
+
+        <RatingBar
+            android:id="@+id/soundVolumeRatingBar"
+            style="@style/starRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="26dp"
+            android:numStars="10"
+            android:stepSize="1.0" />
+
+
+    </RelativeLayout>
+
+
+    <!-- Music Volume -->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="horizontal"
+        android:id="@+id/relativeLayout2"
+        android:layout_below="@+id/relativeLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="22dp">
+
+
+        <TextView
+            android:id="@+id/musicText"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:textSize="20dp"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="20dp"
+            android:text="Music Volume" />
+
+        <ImageView
+            android:id="@+id/musicDecreaseVolume"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_toLeftOf="@+id/musicVolumeRatingBar"
+            android:layout_alignTop="@+id/musicVolumeRatingBar"
+
+            android:src="@drawable/left_arrow" />
+
+        <ImageView
+            android:id="@+id/musicIncreaseVolume"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_toRightOf="@+id/musicVolumeRatingBar"
+            android:layout_alignTop="@+id/musicVolumeRatingBar"
+            android:src="@drawable/right_arrow" />
+
+        <RatingBar
+            android:id="@+id/musicVolumeRatingBar"
+            style="@style/starRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:stepSize="1.0"
+            android:numStars="10"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="26dp" />
+
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/mainMenuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Main Menu"
+        android:background="@drawable/confirm_button_style"
+        android:layout_marginTop="21dp"
+        android:layout_below="@+id/relativeLayout2"
+        android:layout_centerHorizontal="true" />
+
+
+</RelativeLayout>

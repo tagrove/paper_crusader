@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/loadLinearLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@drawable/menu_style"
+    android:hapticFeedbackEnabled="true"
+    android:shadowColor="#FFFFFF"
+    android:shadowDx="-3"
+    android:shadowDy="-3"
+    android:shadowRadius="5"
+
+    >
+    <!-- left third -->
+    <RelativeLayout
+        android:id="@+id/leftSaveSlot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="198dp"
+        tools:layout_editor_absoluteY="0dp"
+        >
+
+
+        <TextView
+            android:id="@+id/leftSaveText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/leftSaveImage"
+            android:layout_alignLeft="@+id/leftSaveImage"
+            android:layout_alignRight="@+id/leftSaveImage"
+            android:layout_alignStart="@+id/leftSaveImage"
+            android:layout_below="@+id/leftSaveImage"
+            android:layout_centerVertical="true"
+            android:alpha=".4"
+            android:background="@drawable/load_game_text_background"
+            android:shadowColor="#000000"
+
+            android:gravity="center_vertical|right"
+
+
+            android:shadowDx="-3"
+            android:shadowDy="1"
+            android:shadowRadius="10"
+            android:text="01:13:08\nLevel: 05"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:typeface="sans" />
+
+        <ImageView
+            android:id="@+id/leftSaveImage"
+            android:layout_width="123dp"
+            android:layout_height="182dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:src="@raw/armor_icon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </RelativeLayout>
+
+
+
+    <!-- center third -->
+
+    <RelativeLayout
+        android:id="@+id/centerSaveSlot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="198dp"
+        tools:layout_editor_absoluteY="0dp"
+
+        android:background="@drawable/load_game_background"
+        >
+
+        <ImageView
+            android:id="@+id/centerSaveImage"
+            android:layout_width="123dp"
+            android:layout_height="182dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:src="@raw/armor_icon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/centerSaveText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/centerSaveImage"
+            android:layout_alignLeft="@+id/centerSaveImage"
+            android:layout_alignRight="@+id/centerSaveImage"
+            android:layout_alignStart="@+id/centerSaveImage"
+            android:layout_below="@+id/centerSaveImage"
+            android:layout_centerVertical="true"
+            android:alpha=".4"
+            android:background="@drawable/load_game_text_background"
+            android:shadowColor="#000000"
+
+            android:gravity="center_vertical|right"
+
+            android:shadowDx="-3"
+            android:shadowDy="1"
+            android:shadowRadius="10"
+            android:text="01:13:08\nLevel: 05"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:typeface="sans" />
+
+    </RelativeLayout>
+
+    <!-- right third -->
+    <RelativeLayout
+        android:id="@+id/rightSaveSlot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="198dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <ImageView
+            android:id="@+id/rightSaveImage"
+            android:layout_width="123dp"
+            android:layout_height="182dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:src="@raw/armor_icon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/rightSaveText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/rightSaveImage"
+            android:layout_alignLeft="@+id/rightSaveImage"
+            android:layout_alignRight="@+id/rightSaveImage"
+            android:layout_alignStart="@+id/rightSaveImage"
+            android:layout_below="@+id/rightSaveImage"
+            android:layout_centerVertical="true"
+            android:alpha=".4"
+            android:background="@drawable/load_game_text_background"
+            android:shadowColor="#000000"
+
+            android:gravity="center_vertical|right"
+
+            android:shadowDx="-3"
+            android:shadowDy="1"
+            android:shadowRadius="10"
+            android:text="01:13:08\nLevel: 05"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:typeface="sans" />
+    </RelativeLayout>
+
+</LinearLayout>
