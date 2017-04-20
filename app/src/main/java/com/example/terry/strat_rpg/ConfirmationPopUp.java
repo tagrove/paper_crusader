@@ -7,33 +7,41 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import static android.media.ToneGenerator.MAX_VOLUME;
-import static com.example.terry.strat_rpg.MainActivity.mpSound;
 
-public class Pop extends Activity {
+/**
+ * Displays a dialog to the user confirming their selection for creating or loading a game.
+ * The message will be tailored to the particular save slot.
+ *
+ * The dialog should also reflect whether or not the user has chosen an "inappropriate" action.
+ * An inappropriate action in this case would be creating a file where a file already exists,
+ * or loading a file where no file exists.  If either of these actions should occur, the dialog
+ * will inform the user so that the user must confirm that they will be starting a new game and
+ * possibly deleting an old game.
+ * TODO - Add the functionality of the above
+ */
+public class ConfirmationPopUp extends Activity {
 
-    MediaPlayer mpCancel, mpConfirm;
-    boolean confirmStart;
+    private MediaPlayer mpCancel, mpConfirm;
+    private boolean confirmStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
-
-        /**
-         * Display Information
-         */
 
         // Gets the information regarding the current display
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int width = dm.widthPixels;
         int height = dm.heightPixels;
+
+        // Prevents the popup from being closeable when the user clicks outside of the dialog
+        setFinishOnTouchOutside(false);
 
         // Gets rid of the white corners around the edges
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -42,19 +50,24 @@ public class Pop extends Activity {
 
         Intent i = getIntent();
         Bundle b = i.getExtras();
-        int saveSlot = (int)b.get("saveSlot");
 
-        /**
-         * Initializes sound with the correct sound volume from MainActivity
-         */
+        int saveSlot = (int)b.get("saveSlot");
+        TextView confirmText = (TextView) findViewById(R.id.loadGameText);
+        String gameText = "Load Game " + saveSlot + "?";
+        confirmText.setText(gameText);
+
+
+        // Initializes sound with the correct volume settings from MainActivity
         float intSoundVolume = (float)b.get("intSoundVolume");
         mpCancel = MediaPlayer.create(super.getApplicationContext(), R.raw.crusader_menu_cancel);
         float soundVolume = (float)(Math.log(MAX_VOLUME - intSoundVolume)/Math.log(MAX_VOLUME));
         mpCancel.setVolume(1-soundVolume, 1-soundVolume);
+
+        // TODO - Find the best way to implement these sounds.  Is setting mp = null necessary?
         mpCancel.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @SuppressWarnings("UnusedAssignment")
             @Override
             public void onCompletion(MediaPlayer mp) {
-                // TODO Auto-generated method stub
                 mp.reset();
                 mp.release();
                 mp = null;
@@ -65,28 +78,22 @@ public class Pop extends Activity {
         mpConfirm = MediaPlayer.create(super.getApplicationContext(), R.raw.crusader_menu_confirm);
         mpCancel.setVolume(1-soundVolume, 1-soundVolume);
         mpCancel.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @SuppressWarnings("UnusedAssignment")
             @Override
             public void onCompletion(MediaPlayer mp) {
-                // TODO Auto-generated method stub
                 mp.reset();
                 mp.release();
                 mp = null;
             }
-
         });
 
-
-        /**
-         * Initializes buttons to confirm or cancel starting a new game
-         */
+        // Initializes buttons to confirm or cancel
         Button confirmButton = (Button) findViewById(R.id.confirmButton);
         Button cancelButton = (Button) findViewById(R.id.cancelButton);
 
-
-        /**
-         * Sets up the locations of the buttons.  This popup is currently a bit off,
-         * so this code may need to be redone in the future.
-         */
+        // Programmatically assigns locations of the buttons.
+        // This code currently has some major issues, but looks okay on a specific device.
+        // TODO - Rework this entire section when we get time.
         final ViewGroup.LayoutParams confirmParams = confirmButton.getLayoutParams();
         final ViewGroup.LayoutParams cancelParams = cancelButton.getLayoutParams();
         cancelButton.setLayoutParams(cancelParams);
@@ -95,7 +102,7 @@ public class Pop extends Activity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mpCancel = MediaPlayer.create(Pop.this, R.raw.crusader_menu_cancel);
+                mpCancel = MediaPlayer.create(ConfirmationPopUp.this, R.raw.crusader_menu_cancel);
                 mpCancel.start();
                 confirmStart = false;
                 onBackPressed();
@@ -105,28 +112,20 @@ public class Pop extends Activity {
             @Override
             public void onClick(View view) {
                 System.out.println("Time to start a save game!");
-                mpConfirm = MediaPlayer.create(Pop.this, R.raw.crusader_begin_new_save);
+                mpConfirm = MediaPlayer.create(ConfirmationPopUp.this, R.raw.crusader_begin_new_save);
                 mpConfirm.start();
                 confirmStart = true;
                 onBackPressed();
-
             }
         });
     }
 
     @Override
     public void onBackPressed() {
-
         Intent i = new Intent();
-        i.putExtra("message", 4);
         i.putExtra("confirmStart", confirmStart);
         setResult(RESULT_OK, i);
         finish();
         super.onBackPressed();
-
     }
-
-
-
-
 }

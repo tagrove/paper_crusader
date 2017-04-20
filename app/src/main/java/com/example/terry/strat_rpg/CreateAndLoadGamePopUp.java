@@ -8,15 +8,20 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
-
 import static android.media.ToneGenerator.MAX_VOLUME;
-import static com.example.terry.strat_rpg.MainActivity.mpOpening;
 
-public class LoadSavePopUp extends Activity {
+/**
+ * CreateAndLoadGamePopUp will display a pop up dialog for Creating or Loading a new game.
+ * Regardless of whether the player selects "New Game" or "Load Game", this class will be called.
+ * The logic will simply change to see whether or not that current save slot is empty (if loading, create a new game),
+ * or if the game is not empty (prompt if user wishes to delete that game in order to start a new game).
+ * TODO - Add these logical checks for new / load game
+ *
+ */
+public class CreateAndLoadGamePopUp extends Activity {
 
     MediaPlayer mpConfirm, mpCancel;
     public float intMusicVolume, intSoundVolume;
@@ -41,16 +46,13 @@ public class LoadSavePopUp extends Activity {
         float soundVolume = (float)(Math.log(MAX_VOLUME - intSoundVolume)/Math.log(MAX_VOLUME));
         mpCancel.setVolume(1-soundVolume, 1-soundVolume);
 
-
         mpConfirm = MediaPlayer.create(super.getApplicationContext(), R.raw.crusader_menu_confirm);
         mpConfirm.setVolume(1-soundVolume, 1-soundVolume);
-
 
         // Gets rid of the white corners around the edges
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         getWindow().setLayout((int) (width*.7), (int) (height*.7));
 
-        LinearLayout layout = (LinearLayout) findViewById(R.id.loadLinearLayout);
         RelativeLayout leftLayout = (RelativeLayout) findViewById(R.id.leftSaveSlot);
         RelativeLayout rightLayout = (RelativeLayout) findViewById(R.id.rightSaveSlot);
         RelativeLayout centerLayout = (RelativeLayout) findViewById(R.id.centerSaveSlot);
@@ -81,13 +83,15 @@ public class LoadSavePopUp extends Activity {
         });
 
         TextView leftSaveText = (TextView) findViewById(R.id.leftSaveText);
-        leftSaveText.setText("stupid text goes here");
+        String testText = "random text can go here";
+        leftSaveText.setText(testText);
 
         TextView centerSaveText = (TextView) findViewById(R.id.centerSaveText);
         centerSaveText.setText("01:17:04\nLevel: 06");
 
         TextView rightSaveText = (TextView) findViewById(R.id.rightSaveText);
-        rightSaveText.setText("New Game");
+        testText = "New Game";
+        rightSaveText.setText(testText);
 
         ImageView rightSaveImage = (ImageView) findViewById(R.id.rightSaveImage);
         rightSaveImage.setImageDrawable(null);
@@ -99,36 +103,38 @@ public class LoadSavePopUp extends Activity {
 
     @Override
     public void onBackPressed() {
-
         Intent i = new Intent();
-        i.putExtra("message", 4);
         i.putExtra("confirmStart", confirmStart);
         setResult(RESULT_OK, i);
         finish();
         super.onBackPressed();
     }
 
+    /**
+     * Passes the save slot to use the confirmation window
+     * TODO - Add messages based on whether or not a new game is being overwritten, or if loading a blank game
+     * @param v current view
+     */
     public void loadGame(View v){
         int saveSlot = -1;
         if (v == findViewById(R.id.leftSaveSlot)){
-            System.out.println("Confirmed in method, left was clicked");
             saveSlot = 0;
+        }
 
-        } else if (v == findViewById(R.id.centerSaveSlot)){
-            System.out.println("Function called to load center save");
+        else if (v == findViewById(R.id.centerSaveSlot)){
             saveSlot = 1;
 
         } else if (v == findViewById(R.id.rightSaveSlot)) {
-            System.out.println("Function called to load right save");
             saveSlot = 2;
         }
 
-        // Load data, then send it to Pop
+        // Load data, then send it to ConfirmationPopUp
         mpConfirm.start();
-        Intent i = new Intent(LoadSavePopUp.this, Pop.class);
+        Intent i = new Intent(CreateAndLoadGamePopUp.this, ConfirmationPopUp.class);
         i.putExtra("saveSlot", saveSlot);
         i.putExtra("intMusicVolume", intMusicVolume);
         i.putExtra("intSoundVolume", intSoundVolume);
+
         // Loading the game
         startActivityForResult(i, 222);
     }

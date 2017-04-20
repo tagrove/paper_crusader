@@ -1,9 +1,14 @@
 package com.example.terry.strat_rpg;
 
 /**
- * Created by Terry on 3/30/2017.
+ * Player is an object class representing a player.  This may be changed in the future to be
+ * a parent class which may then be converted to the player or monster.
+ *
+ * The game loop from Game will deal with this class in order to calculate experience, attackspeed,
+ * strength, health, and other stats.
+ *
+ * TODO - Need to implement every method necessary for the game to work still.
  */
-
 public class Player {
     private int maxHealth;
     private int currentHealth;

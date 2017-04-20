@@ -10,9 +10,15 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.RatingBar;
 import android.widget.ImageView;
-import static com.example.terry.strat_rpg.R.id.musicDecreaseVolume;
 import android.widget.Button;
+import static com.example.terry.strat_rpg.R.id.musicDecreaseVolume;
 
+/**
+ * OptionsPopUp provides the user with the ability to adjust sound and music volume levels.
+ * The levels are then passed back to MainActivity, which can then be passed along to any other
+ * class that will require them.  There are multiple ways of doing this, but for now we are using
+ * resource bundles within intents to pass the values.
+ */
 public class OptionsPopUp extends Activity implements View.OnClickListener {
 
     public RatingBar musicVolumeRatingBar, soundVolumeRatingBar;
@@ -29,19 +35,19 @@ public class OptionsPopUp extends Activity implements View.OnClickListener {
         int width = dm.widthPixels;
         int height = dm.heightPixels;
 
+        // Prevents the popup from being closeable when the user clicks outside of the dialog
+        setFinishOnTouchOutside(false);
+
         // Gets rid of the white corners around the edges
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        getWindow().setLayout((int) (width*.7), (int) (height*.7));
 
+        // Scales size of window to be smaller
+        getWindow().setLayout((int) (width*.7), (int) (height*.7));
 
         Intent i = getIntent();
         Bundle b = i.getExtras();
         intMusicVolume = (float)b.get("intMusicVolume");
         intSoundVolume = (float)b.get("intSoundVolume");
-
-        //int saveFilePosition = 0;
-        //Intent intent = new Intent();
-        //intent.putExtra("saveFilePosition",saveFilePosition); // data is the value you need in parent
 
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
@@ -51,26 +57,23 @@ public class OptionsPopUp extends Activity implements View.OnClickListener {
             }
         });
 
-
         mpMusic = MainActivity.mpOpening;
         mpSound = MainActivity.mpSound;
 
+        // The rating bars here will correspond with volume control for music and sound
         musicVolumeRatingBar = (RatingBar) findViewById(R.id.musicVolumeRatingBar);
-
         musicVolumeRatingBar.setRating(intMusicVolume);
 
         soundVolumeRatingBar = (RatingBar) findViewById(R.id.soundVolumeRatingBar);
         soundVolumeRatingBar.setRating(intSoundVolume);
 
+        // Initializes increase & decrease buttons for sound and music levels
         ImageView musicIncreaseVolume = (ImageView) findViewById(R.id.musicIncreaseVolume);
         musicIncreaseVolume.setOnClickListener(this);
-
         ImageView musicDecreaseVolume = (ImageView) findViewById(R.id.musicDecreaseVolume);
         musicDecreaseVolume.setOnClickListener(this);
-
         ImageView soundIncreaseVolume = (ImageView) findViewById(R.id.soundIncreaseVolume);
         soundIncreaseVolume.setOnClickListener(this);
-
         ImageView soundDecreaseVolume = (ImageView) findViewById(R.id.soundDecreaseVolume);
         soundDecreaseVolume.setOnClickListener(this);
     }
@@ -81,11 +84,9 @@ public class OptionsPopUp extends Activity implements View.OnClickListener {
         Intent i = new Intent();
         i.putExtra("intMusicVolume", intMusicVolume);
         i.putExtra("intSoundVolume", intSoundVolume);
-
         setResult(RESULT_OK, i);
         finish();
-
-        //super.onBackPressed();
+        super.onBackPressed();
     }
 
     @Override

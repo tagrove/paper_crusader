@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.terry.strat_rpg"
     android:installLocation="preferExternal">
 
@@ -8,12 +9,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="AllowBackup">
         <activity
-            android:name=".Pop"
+            android:name=".ConfirmationPopUp"
             android:theme="@style/AppTheme.CustomTheme"></activity>
         <activity
-            android:name=".LoadSavePopUp"
+            android:name=".CreateAndLoadGamePopUp"
             android:theme="@style/AppTheme.CustomTheme"></activity>
         <activity
             android:name=".OptionsPopUp"
