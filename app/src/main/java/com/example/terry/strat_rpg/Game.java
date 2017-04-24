@@ -1,9 +1,13 @@
 package com.example.terry.strat_rpg;
 
 import android.animation.ValueAnimator;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -13,6 +17,9 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Game class for Paper Crusader
@@ -21,21 +28,44 @@ import android.widget.RelativeLayout;
  *
  * TODO - Add the health bar to the top of the screen
  * TODO - Add a window to display current level and currency available
- * TODO - Implement the game loop
- * TODO - Add the logic for the player and monster to hit one another
  * TODO - Add animation for monster death, including EXP and Money granted
  * TODO - Add dialogs for the Equipment and Talent sections
  * TODO - Add the functionality behind the Options button so that it may take the player back to the main activity (Quit game)
- * TODO - Add sound effects to player / monster attacks
  * TODO - Add functionality to Options to where the sound / music levels will save and return to main
  */
-public class Game extends AppCompatActivity implements View.OnClickListener{
+public class Game extends AppCompatActivity implements View.OnClickListener, Runnable {
+
+
+    private boolean running = true;
+    private int timeBetweenTicks = 100;
+    private Thread gameThread = null;
+    private ImageView playerImage, monsterImage;
+    private Agent player, monster;
+    private float musicVolume, soundVolume;
+    SoundPool soundPool;
+    HashMap<Integer, Integer> soundPoolMap;
+
+    //TODO - Organize monsters into some form of list so that they may be sequentially loaded as needed.
+    ArrayList<Monster> monsterArrayList = new ArrayList<Monster>();
+
+    //TODO - Use to track how many monster of each type from the list have been killed.  When monsterCount = 5, next monster
+    //TODO - will be a monster of the next type.  IE 1 1 1 1 1, 2 2 2 2 2, 3 3 3 3 3, BOSS
+    private int monsterCount = 1;
+    private boolean monsterAttacking = false;
+    private boolean playerAttacking = false;
+    private Random random = new Random();
+
 
     public RelativeLayout equipmentLayout, talentsLayout, settingsLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+
+        Intent i = getIntent();
+        Bundle bundle = i.getExtras();
+        musicVolume = (float) bundle.get("intMusicVolume");
+        soundVolume = (float) bundle.get("intSoundVolume");
 
         /* TODO - Is this code necessary?  Test to see what we can change */
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -69,6 +99,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener{
             }
         }
 
+
         // Set up the background so that it has two images in order to have the
         // infinite scrolling background.
         final ImageView backgroundOne = (ImageView) findViewById(R.id.background_one);
@@ -91,17 +122,46 @@ public class Game extends AppCompatActivity implements View.OnClickListener{
 
         equipmentLayout = (RelativeLayout) findViewById(R.id.armor_icon_layout);
         equipmentLayout.setOnClickListener(this);
-
         talentsLayout = (RelativeLayout) findViewById(R.id.talents_icon_layout);
         talentsLayout.setOnClickListener(this);
-
         settingsLayout = (RelativeLayout) findViewById(R.id.settings_icon_layout);
         settingsLayout.setOnClickListener(this);
 
         // TODO - Figure out what animations are going to be used and create these ImageViews in the correct place.
-        final ImageView monsterImage = (ImageView) findViewById(R.id.monster_image);
-        final float monsterLeft = monsterImage.getX();
-        System.out.println(monsterLeft + " = MonsterLeft");
+        monsterImage = (ImageView) findViewById(R.id.monster_image);
+        playerImage = (ImageView) findViewById(R.id.player_image);
+
+        // Retrieve Player information from MainActivity (which read from save file)
+        player = new Player();
+        player = (Player) getIntent().getSerializableExtra("player");
+        // Temporarily needs to be here for the combat logic to work
+        player.setAgentName("player");
+
+        monster = new Monster();
+        // Temporarily needs to be here for the combat logc to work
+        monster.setAgentName("monster");
+
+        monster.setAttackSpeed(5.0f);
+
+        soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
+        soundPoolMap = new HashMap<>();
+
+        // Load sounds for later use
+        soundPoolMap.put(1, soundPool.load(this, R.raw.melee_2_sound, 1));
+        soundPoolMap.put(2, soundPool.load(this, R.raw.slime_attack_sound, 1));
+        soundPoolMap.put(3, soundPool.load(this, R.raw.melee_3_sound, 1));
+        soundPoolMap.put(4, soundPool.load(this, R.raw.dodge_sound, 1));
+        soundPoolMap.put(5, soundPool.load(this, R.raw.critical_sound, 1));
+        soundPoolMap.put(6, soundPool.load(this, R.raw.player_died, 1));
+        soundPoolMap.put(7, soundPool.load(this, R.raw.monster_died, 1));
+
+        playerImage.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                soundPool.play(2, soundVolume, soundVolume, 1, 0, 1f);
+            }
+
+        });
 
     }
 
@@ -113,90 +173,11 @@ public class Game extends AppCompatActivity implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.armor_icon_layout: {
-                System.out.println("Do something with armor icon!");
-                /*
-                new Handler().postDelayed(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        ImageView playerImage = (ImageView) findViewById(R.id.player_image);
-                        Animation alpha = AnimationUtils.loadAnimation( getApplication(), R.anim.anim_alpha);
-                        playerImage.startAnimation(alpha);
-                    }
-                }, 1000);
-                */
-                ImageView playerImage = (ImageView) findViewById(R.id.player_image);
-                TranslateAnimation animation = new TranslateAnimation(0.0f, 1200,
-                        0.0f, 0.0f);          //  new TranslateAnimation(xFrom,xTo, yFrom,yTo)
-                animation.setDuration(500);  // animation duration
-                animation.setRepeatCount(1);  // animation repeat count
-                animation.setRepeatMode(2);   // repeat animation (left to right, right to left )
-
-                playerImage.startAnimation(animation);  // start animation
-
+                System.out.println("Do something with Armor Icon!");
                 break;
             }case R.id.talents_icon_layout: {
                 System.out.println("Do something with Talents Icon!");
 
-                final ImageView playerImage = (ImageView) findViewById(R.id.player_image);
-                final TranslateAnimation animation = new TranslateAnimation(0.0f, 1200,
-                        0.0f, 0.0f);          //  new TranslateAnimation(xFrom,xTo, yFrom,yTo)
-                animation.setDuration(500);  // animation duration
-                animation.setRepeatCount(1);  // animation repeat count
-                animation.setRepeatMode(2);   // repeat animation (left to right, right to left )
-                playerImage.startAnimation(animation);  // start animation
-
-                final ImageView monsterImage = (ImageView) findViewById(R.id.monster_image);
-
-
-                /////////////////////
-
-                final Animation animation1 = new AlphaAnimation(0.0f, 1.0f);
-                animation1.setDuration(1000);
-                animation1.setStartOffset(5000);
-
-                //animation1 AnimationListener
-                animation1.setAnimationListener(new Animation.AnimationListener(){
-
-                    @Override
-                    public void onAnimationEnd(Animation arg0) {
-                        // start animation1 when animation2 ends (repeat)
-                        monsterImage.startAnimation(animation1);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation arg0) {
-                    }
-
-                    @Override
-                    public void onAnimationStart(Animation arg0) {
-                    }
-                });
-
-                monsterImage.startAnimation(animation1);
-                final Animation animation2 = new AlphaAnimation(1.0f, 0.0f);
-                animation2.setDuration(1000);
-                animation2.setStartOffset(5000);
-
-                //animation2 AnimationListener
-                animation2.setAnimationListener(new Animation.AnimationListener(){
-                    @Override
-                    public void onAnimationEnd(Animation arg0) {
-                        // start animation2 when animation1 ends (continue)
-                        monsterImage.startAnimation(animation2);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation arg0) {
-                        // TODO Auto-generated method stub
-                    }
-
-                    @Override
-                    public void onAnimationStart(Animation arg0) {
-                        // TODO Auto-generated method stub
-                    }
-                });
                 break;
             }case R.id.settings_icon_layout: {
                 System.out.println("Do something with Settings Icon!");
@@ -205,4 +186,256 @@ public class Game extends AppCompatActivity implements View.OnClickListener{
             }
         }
     }
+
+
+
+    public void update() {
+
+        // Delay is designed to allow the animation to have time to complete while the player or
+        // monster attacks.  An alternate route to try may be to put the thread to sleep so that
+        // the player / monster is not unfairly 'stunned' for a period of time if both are ready
+        // to attack at the same time.
+        int delay = 800;
+        player.setTimeUntilAttack(player.getTimeUntilAttack() - timeBetweenTicks);
+        monster.setTimeUntilAttack(monster.getTimeUntilAttack() - timeBetweenTicks);
+
+        // Check if player is ready to attack
+        if (player.getTimeUntilAttack() < 0 ){
+
+            // If true, both are ready, but monster was ready first
+            if (monster.getTimeUntilAttack() < player.getTimeUntilAttack()){
+                // Monster Attack
+                animateAttack(monster.getAgentName());
+                monster.setTimeUntilAttack(monster.getAttackSpeed() * 1000);
+                monsterAttacking = true;
+                // Delay Player so that the animation may finish
+                player.setTimeUntilAttack(player.getTimeUntilAttack() + delay);
+            }
+
+            // If false, this means that the player must have priority
+            // and needs to attack
+            else {
+                player.setTimeUntilAttack(player.getAttackSpeed() * 1000);
+                animateAttack(player.getAgentName());
+                playerAttacking = true;
+                // Monster also was ready to attack, but player was ready first
+                if (monster.getTimeUntilAttack() < 0){
+                    monster.setTimeUntilAttack(monster.getTimeUntilAttack() + delay);
+                }
+            }
+        } else if (monster.getTimeUntilAttack() < 0){
+            // Monster Attacks only
+            animateAttack(monster.getAgentName());
+            monster.setTimeUntilAttack(monster.getAttackSpeed() * 1000);
+            monsterAttacking = true;
+        }
+
+        if (monsterAttacking){
+            soundPool.play(2, soundVolume/10, soundVolume/10, 1, 0, 1f);
+            updateStats(monster, player);
+
+        } else if (playerAttacking){
+            updateStats(player, monster);
+        }
+
+        monsterAttacking = false;
+        playerAttacking = false;
+    }
+
+    // TODO Calculate all necessary combat stats such as lifesteal, critical, block, etc.
+
+    public void updateStats(Agent attacker, Agent defender){
+
+        int dodge = random.nextInt(100);
+        int damage = attacker.getStrength();
+
+        if (dodge < defender.getDodgeRate()){
+            soundPool.play(4, soundVolume/10, soundVolume/10, 1, 0, 1f);
+        } else {
+            int crit = random.nextInt(100);
+            damage = damage - defender.getArmor();
+            if (damage <= 0){
+                damage = 1;
+            }
+            if (crit < attacker.getCriticalRate()){
+                soundPool.play(5, soundVolume/10, soundVolume/10, 1, 0, 1f);
+                damage *= 2;
+            } else {
+                soundPool.play(2, soundVolume/10, soundVolume/10, 1, 0, 1f);
+            }
+
+            defender.setCurrentHealth(defender.getCurrentHealth() - damage);
+            if (defender.getCurrentHealth() <= 0){
+                if (defender.getAgentName().equalsIgnoreCase("player")){
+                    player.setCurrentHealth(player.getMaxHealth());
+                    playerDied();
+                } else {
+                    monster.setCurrentHealth(monster.getMaxHealth());
+                    monsterDied();
+                }
+            } else {
+                // Update any other stats needing to be updated - this is where combat damage was dealt,
+                // but nobody has died.
+
+            }
+        }
+    }
+
+    /**
+     * Call when the player has defeated a monster.  In this method, we need to replace the monster portrait
+     * and load the next monster object as the monster.
+     */
+    public void monsterDied(){
+        System.out.println("PLAYER DEFEATED THE MONSTER!");
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        soundPool.play(7, soundVolume/10, soundVolume/10, 1, 0, 1f);
+        // TODO Animate monster coming onto the screen
+
+        // TODO Award Experience / Gold
+    }
+
+    /**
+     * This is called when the player receives lethal damage.
+     * At this point, either the activity could be finished, or a popup could be called and go away while resetting all
+     * of the data on this current activity.
+     */
+    public void playerDied(){
+        System.out.println("PLAYER DIED :(");
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        soundPool.play(6, soundVolume/10, soundVolume/10, 1, 0, 1f);
+
+        // TODO Open Activity that allows player to see stats of the current run
+
+        // TODO Open Activity that allows player to purchase upgrades
+
+
+    }
+
+    // This method executes when the player starts the game
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+        this.resume();
+    }
+
+    // If SimpleGameEngine Activity is started then
+    // start our thread.
+    public void resume() {
+        running = true;
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+
+    // This method executes when the player quits the game
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.pause();
+    }
+
+    // If SimpleGameEngine Activity is paused/stopped
+    // shutdown our thread.
+    public void pause() {
+        running = false;
+        try {
+            gameThread.join();
+        } catch (InterruptedException e) {
+            Log.e("Error:", "joining thread");
+        }
+
+    }
+
+    /**
+     * Displays the animation of the attack for the player or the monster.
+     * @param name - determines who the attacker is to apply the appropriate animation
+     */
+    public void animateAttack(String name){
+
+        final String attackerName = name;
+        runOnUiThread(new Runnable() {
+            public void run() {
+
+                System.out.println("Name of attacker = " + attackerName);
+                TranslateAnimation animation;
+                if (attackerName.equalsIgnoreCase("monster")){
+                    animation = new TranslateAnimation(0.0f, -1200, 0.0f, 0.0f);
+                    System.out.println("Monster is attacking!");
+                } else {
+                    animation = new TranslateAnimation(0.0f, 1200, 0.0f, 0.0f);
+
+                    System.out.println("Player is attacking!");
+                }
+
+                animation.setDuration(200);  // animation duration
+                animation.setRepeatCount(1);  // animation repeat count
+                animation.setRepeatMode(2);   // repeat animation (left to right, right to left )
+
+                // TODO: Fix this so that it syncs up properly
+                final Animation animation2 = new AlphaAnimation(1.0f, 0.0f);
+                animation2.setDuration(3);
+                animation2.setRepeatCount(3);
+                monsterImage.startAnimation(animation2);
+                animation2.setAnimationListener(new Animation.AnimationListener(){
+                    @Override
+                    public void onAnimationEnd(Animation arg0) {
+                        // start animation2 when animation1 ends (continue)
+                        //monsterImage.startAnimation(animation2);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation arg0) {
+                        // TODO Auto-generated method stub
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animation arg0) {
+                        // TODO Auto-generated method stub
+                    }
+                });
+
+                if (attackerName.equalsIgnoreCase("monster")){
+                    monsterImage.startAnimation(animation);
+                    playerImage.startAnimation(animation2);
+
+                } else {
+                    monsterImage.startAnimation(animation2);
+                    playerImage.startAnimation(animation);
+                }
+            }
+        });
+    }
+
+    public void run() {
+
+        long lastTime = System.nanoTime();
+        double ns = 1000000000;
+        double delta = 0;
+        long timer = System.currentTimeMillis();
+
+        while(running){
+            long now = System.nanoTime();
+            delta += (now - lastTime) / ns;
+            lastTime = now;
+            while(delta >= 1){
+                delta--;
+            }
+
+            // Originally 1000, which checks every second.
+            if(System.currentTimeMillis() - timer > timeBetweenTicks){
+                timer += timeBetweenTicks;
+                update();
+            }
+        }
+    }
+
+
 }

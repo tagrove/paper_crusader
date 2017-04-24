@@ -29,6 +29,7 @@ public class ConfirmationPopUp extends Activity {
 
     private MediaPlayer mpCancel, mpConfirm;
     private boolean confirmStart;
+    private int saveSlot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -51,7 +52,7 @@ public class ConfirmationPopUp extends Activity {
         Intent i = getIntent();
         Bundle b = i.getExtras();
 
-        int saveSlot = (int)b.get("saveSlot");
+        saveSlot = (int)b.get("saveSlot");
         TextView confirmText = (TextView) findViewById(R.id.loadGameText);
         String gameText = "Load Game " + saveSlot + "?";
         confirmText.setText(gameText);
@@ -124,6 +125,7 @@ public class ConfirmationPopUp extends Activity {
     public void onBackPressed() {
         Intent i = new Intent();
         i.putExtra("confirmStart", confirmStart);
+        i.putExtra("saveSlot", saveSlot);
         setResult(RESULT_OK, i);
         finish();
         super.onBackPressed();

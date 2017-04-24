@@ -3,11 +3,14 @@ package com.example.terry.strat_rpg;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -17,8 +20,10 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.Timer;
-
 
 /**
  * @name Terry Grové
@@ -47,11 +52,15 @@ public class MainActivity extends AppCompatActivity {
     final String COMPANY_NAME = "iNeedADegree Games";
     final String MY_APP_VERSION = "version: there are bugs";
     public static MediaPlayer mpOpening, mpSound;
+    public boolean loaded = false;
     public final int MAX_VOLUME = 9;
-    public float musicVolume = 5;
-    public float soundVolume = 5;
-    public float intMusicVolume = 5;
-    public float intSoundVolume = 5;
+    private float musicVolume = 5;
+    private float soundVolume = 5;
+
+
+    public static SoundPool soundPool;
+    public HashMap<Integer, Integer> soundPoolMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,19 +97,29 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
-        // Initialize MediaPlayers for sound and opening theme.  This may be
-        // handled in a different manner in the future
-        // @TO-DO?
+        //noinspection deprecation
+        soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
+        soundPoolMap = new HashMap<Integer, Integer>();
+        soundPoolMap.put(1, soundPool.load(this, R.raw.crusader_menu_confirm, 1));
+        soundPoolMap.put(2, soundPool.load(this, R.raw.crusader_menu_cancel, 1));
+        soundPoolMap.put(3, soundPool.load(this, R.raw.crusader_opening_theme, 1));
+
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            public void onLoadComplete(SoundPool soundPool, int sampleId,int status) {
+                loaded = true;
+            }
+        });
+
         mpSound = MediaPlayer.create(this, R.raw.crusader_menu_confirm);
         mpOpening = MediaPlayer.create(this, R.raw.crusader_opening_theme);
-
         // Ensures that the music and sound begin at 50% volume.
         musicVolume = (float)(Math.log(MAX_VOLUME - 5)/Math.log(MAX_VOLUME));
         mpOpening.setVolume(1-musicVolume, 1-musicVolume);
+
         soundVolume = (float)(Math.log(MAX_VOLUME - 5)/Math.log(MAX_VOLUME));
         mpSound.setVolume(1-soundVolume, 1-soundVolume);
         mpOpening.start();
-
+        soundVolume = 5f;
 
         // Initializes the rating bars corresponding to the sound levels at 50% (5 bars)
         TextView companyTextView = (TextView) findViewById(R.id.companyTextView);
@@ -136,10 +155,11 @@ public class MainActivity extends AppCompatActivity {
         newGameButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
                 v.startAnimation(animAlpha);
-                mpSound.start();
+                soundPool.play(1, soundVolume/10,  soundVolume/10, 1, 0, 1f);
+
                 Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
-                i.putExtra("intMusicVolume", intMusicVolume);
-                i.putExtra("intSoundVolume", intSoundVolume);
+                i.putExtra("intMusicVolume", musicVolume);
+                i.putExtra("intSoundVolume", soundVolume);
                 i.putExtra("new", "new");
 
                 // Code 222 = Create New Game
@@ -152,10 +172,10 @@ public class MainActivity extends AppCompatActivity {
         loadGameButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
                 v.startAnimation(animAlpha);
-                mpSound.start();
+                soundPool.play(1, soundVolume/10,  soundVolume/10, 1, 0, 1f);
                 Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
-                i.putExtra("intMusicVolume", intMusicVolume);
-                i.putExtra("intSoundVolume", intSoundVolume);
+                i.putExtra("intMusicVolume", musicVolume);
+                i.putExtra("intSoundVolume", soundVolume);
                 i.putExtra("load", "load");
 
                 // Code 111 = Load Existing Game
@@ -168,11 +188,12 @@ public class MainActivity extends AppCompatActivity {
         optionsButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
                 v.startAnimation(animAlpha);
-                mpSound.start();
+
+                soundPool.play(1, soundVolume/10,  soundVolume/10, 1, 0, 1f);
                 Intent i = new Intent(MainActivity.this, OptionsPopUp.class);
                 i.putExtra("options", "options");
-                i.putExtra("intMusicVolume", intMusicVolume);
-                i.putExtra("intSoundVolume", intSoundVolume);
+                i.putExtra("intMusicVolume", musicVolume);
+                i.putExtra("intSoundVolume", soundVolume);
 
                 // Code 333 = Options
                 startActivityForResult(i, 333);
@@ -183,10 +204,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        Bundle b = data.getExtras();
+        System.out.println(data.getExtras().toString());
         if (requestCode == 333 && resultCode == RESULT_OK){
-            Bundle b = data.getExtras();
-            intMusicVolume = (float) b.get("intMusicVolume");
-            intSoundVolume = (float) b.get("intSoundVolume");
+            soundVolume = (float) b.get("intSoundVolume");
+            musicVolume = (float) b.get("intMusicVolume");
         }
 
         // 111 = LoadGame.  If Boolean confirmStart == true, time to load a new game.
@@ -202,12 +224,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startGame(){
-
         int runTime = 1000;
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 /* Create an intent that will start the next activity. */
                 Intent mainIntent = new Intent(MainActivity.this, Game.class);
+                mainIntent.putExtra("intMusicVolume", musicVolume);
+                mainIntent.putExtra("intSoundVolume", soundVolume);
+
+                Player player = new Player();
+
+                mainIntent.putExtra("player", player);
+
                 startActivity(mainIntent);
 
                 /* Finish activity so user cannot go back to it.
@@ -223,4 +251,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }, runTime);
     }
+
 }

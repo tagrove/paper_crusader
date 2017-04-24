@@ -7,10 +7,15 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
+
+import java.util.Iterator;
+import java.util.Set;
+
 import static android.media.ToneGenerator.MAX_VOLUME;
 
 /**
@@ -25,6 +30,7 @@ public class CreateAndLoadGamePopUp extends Activity {
 
     MediaPlayer mpConfirm, mpCancel;
     public float intMusicVolume, intSoundVolume;
+    private int saveSlot = -1;
     boolean confirmStart;
 
     @Override
@@ -105,6 +111,7 @@ public class CreateAndLoadGamePopUp extends Activity {
     public void onBackPressed() {
         Intent i = new Intent();
         i.putExtra("confirmStart", confirmStart);
+        i.putExtra("saveSlot", saveSlot);
         setResult(RESULT_OK, i);
         finish();
         super.onBackPressed();
@@ -116,14 +123,11 @@ public class CreateAndLoadGamePopUp extends Activity {
      * @param v current view
      */
     public void loadGame(View v){
-        int saveSlot = -1;
+        saveSlot = -1;
         if (v == findViewById(R.id.leftSaveSlot)){
             saveSlot = 0;
-        }
-
-        else if (v == findViewById(R.id.centerSaveSlot)){
+        } else if (v == findViewById(R.id.centerSaveSlot)){
             saveSlot = 1;
-
         } else if (v == findViewById(R.id.rightSaveSlot)) {
             saveSlot = 2;
         }
@@ -132,6 +136,7 @@ public class CreateAndLoadGamePopUp extends Activity {
         mpConfirm.start();
         Intent i = new Intent(CreateAndLoadGamePopUp.this, ConfirmationPopUp.class);
         i.putExtra("saveSlot", saveSlot);
+
         i.putExtra("intMusicVolume", intMusicVolume);
         i.putExtra("intSoundVolume", intSoundVolume);
 
@@ -143,18 +148,19 @@ public class CreateAndLoadGamePopUp extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 222 && resultCode == RESULT_OK){
             // receive data
-            System.out.println("Message = " + data.getIntExtra("message", 1));
             Bundle b = data.getExtras();
             confirmStart = (boolean) b.get("confirmStart");
+            saveSlot = (int) b.get("saveSlot");
+
+            System.out.println("WE SHOULD HAVE SAVESLOT = " + saveSlot);
+            data.putExtra("saveSlot", saveSlot);
 
             // If confirmStart == true, the game is ready to load the save file
             if (confirmStart){
                 onBackPressed();
             }
         }
-
         super.onActivityResult(requestCode, resultCode, data);
     }
-
 
 }

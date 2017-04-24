@@ -49,6 +49,8 @@ public class OptionsPopUp extends Activity implements View.OnClickListener {
         intMusicVolume = (float)b.get("intMusicVolume");
         intSoundVolume = (float)b.get("intSoundVolume");
 
+        System.out.println("Just RECEIVED soundVolume, = " + intSoundVolume);
+
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,12 +95,14 @@ public class OptionsPopUp extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         int maxVolume = 9;
 
+        /**
         float soundCurrentVolume = soundVolumeRatingBar.getRating();
         float log2=(float)(Math.log(maxVolume-soundCurrentVolume)/Math.log(maxVolume));
         mpSound.setVolume(1-log2, 1-log2);
+        */
 
         float musicCurrentVolume = musicVolumeRatingBar.getRating();
-        float log1=(float)(Math.log(maxVolume-musicCurrentVolume)/Math.log(maxVolume));
+        float log1 = (float)(Math.log(maxVolume-musicCurrentVolume)/Math.log(maxVolume));
         mpMusic.setVolume(1-log1, 1-log1);
 
         switch (view.getId()){
@@ -139,5 +143,10 @@ public class OptionsPopUp extends Activity implements View.OnClickListener {
         }
         intMusicVolume = musicVolumeRatingBar.getRating();
         intSoundVolume = soundVolumeRatingBar.getRating();
+
+        System.out.println("Just set intMusicVolume = " + intMusicVolume);
+        System.out.println("Just set intSoundVolume = " + intSoundVolume);
+
+
     }
 }

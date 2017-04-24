@@ -13,13 +13,22 @@
         tools:ignore="AllowBackup">
         <activity
             android:name=".ConfirmationPopUp"
-            android:theme="@style/AppTheme.CustomTheme"></activity>
+            android:theme="@style/AppTheme.CustomTheme">
+
+        </activity>
         <activity
             android:name=".CreateAndLoadGamePopUp"
-            android:theme="@style/AppTheme.CustomTheme"></activity>
+            android:theme="@style/AppTheme.CustomTheme">
+
+        </activity>
         <activity
             android:name=".OptionsPopUp"
-            android:theme="@style/AppTheme.CustomTheme"></activity>
+            android:theme="@style/AppTheme.CustomTheme">
+
+        </activity>
+        <activity android:name=".GameLoop">
+
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +39,9 @@
         <activity
             android:name=".Game"
             android:label="@string/title_activity_game"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme">
+
+        </activity>
     </application>
 
 </manifest>
