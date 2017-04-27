@@ -6,20 +6,25 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ContentFrameLayout;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Timer;
 
 /**
  * Game class for Paper Crusader
@@ -37,11 +42,14 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
 
     private boolean running = true;
+    private static final int DIM_AMOUNT = 220;
+    private boolean confirmQuit = false;
     private int timeBetweenTicks = 100;
     private Thread gameThread = null;
     private ImageView playerImage, monsterImage;
     private Agent player, monster;
     private float musicVolume, soundVolume;
+    private FrameLayout gameLayout;
     SoundPool soundPool;
     HashMap<Integer, Integer> soundPoolMap;
 
@@ -56,7 +64,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     private Random random = new Random();
 
 
-    public RelativeLayout equipmentLayout, talentsLayout, settingsLayout;
+    public RelativeLayout equipmentLayout, talentsLayout, settingsLayout, homeLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +134,9 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         talentsLayout.setOnClickListener(this);
         settingsLayout = (RelativeLayout) findViewById(R.id.settings_icon_layout);
         settingsLayout.setOnClickListener(this);
+        homeLayout = (RelativeLayout) findViewById(R.id.home_icon_layout);
+        homeLayout.setOnClickListener(this);
+
 
         // TODO - Figure out what animations are going to be used and create these ImageViews in the correct place.
         monsterImage = (ImageView) findViewById(R.id.monster_image);
@@ -163,6 +174,9 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
         });
 
+        gameLayout = (FrameLayout) findViewById( R.id.activity_game);
+        gameLayout.getForeground().setAlpha( 0);
+
     }
 
     /**
@@ -173,15 +187,35 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.armor_icon_layout: {
-                System.out.println("Do something with Armor Icon!");
+                final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
+                view.startAnimation(animAlpha);
+                Intent i = new Intent(Game.this, EquipmentPopUp.class);
+                i.putExtra("intSoundVolume", soundVolume);
+
+                // Code 555 = Purchase Gear
+                startActivityForResult(i, 555);
+
                 break;
             }case R.id.talents_icon_layout: {
                 System.out.println("Do something with Talents Icon!");
 
                 break;
             }case R.id.settings_icon_layout: {
-                System.out.println("Do something with Settings Icon!");
+                final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
+                    view.startAnimation(animAlpha);
+                    Intent i = new Intent(Game.this, OptionsPopUp.class);
+                    i.putExtra("intMusicVolume", musicVolume);
+                    i.putExtra("intSoundVolume", soundVolume);
 
+                    // Code 333 = Options
+                    startActivityForResult(i, 333);
+                break;
+            }case R.id.home_icon_layout: {
+                final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
+                view.startAnimation(animAlpha);
+                Intent i = new Intent(Game.this, ConfirmQuitGame.class);
+                i.putExtra("confirmQuit", confirmQuit);
+                startActivityForResult(i, 888);
                 break;
             }
         }
@@ -323,6 +357,8 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     @Override
     protected void onResume() {
 
+        gameLayout.getForeground().setAlpha(0);
+
         super.onResume();
         this.resume();
     }
@@ -331,14 +367,19 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     // start our thread.
     public void resume() {
         running = true;
-        gameThread = new Thread(this);
-        gameThread.start();
+        if (!confirmQuit) {
+            gameThread = new Thread(this);
+            gameThread.start();
+        }
     }
 
     // This method executes when the player quits the game
     @Override
     protected void onPause() {
         super.onPause();
+        if (!confirmQuit) {
+            gameLayout.getForeground().setAlpha(DIM_AMOUNT);
+        }
         this.pause();
     }
 
@@ -346,6 +387,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     // shutdown our thread.
     public void pause() {
         running = false;
+
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -415,7 +457,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     }
 
     public void run() {
-
         long lastTime = System.nanoTime();
         double ns = 1000000000;
         double delta = 0;
@@ -438,4 +479,51 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (data != null) {
+            Bundle b = data.getExtras();
+
+            // 888 = go home
+            if (requestCode == 888 && resultCode == RESULT_OK) {
+                // If confirmQuit = true, quit.
+                confirmQuit = (boolean) b.get("confirmQuit");
+                if (confirmQuit){
+                    quitGame();
+                }
+            } else if (requestCode == 333 && resultCode == RESULT_OK){
+                soundVolume = (float) b.get("intSoundVolume");
+                musicVolume = (float) b.get("intMusicVolume");
+            }
+
+        }
+    }
+
+
+    public void quitGame(){
+        int runTime = 1000;
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                /* Create an intent that will start the next activity. */
+                Intent mainIntent = new Intent(Game.this, MainActivity.class);
+                mainIntent.putExtra("intMusicVolume", musicVolume);
+                mainIntent.putExtra("intSoundVolume", soundVolume);
+
+                System.out.println("About to send Sound back to main, sound = " + soundVolume);
+                startActivity(mainIntent);
+
+                /* Finish activity so user cannot go back to it.
+                *  If user needs to return to the main activity, a new activity will be created*/
+                Game.this.finish();
+
+                /* Applies slide out / slide in animations */
+                overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
+                Timer timer = new Timer(true);
+
+                // TODO - figure out how to make the music actually fade out.
+                timer.schedule(new FadeMusicOut(), 0, 200);
+            }
+        }, runTime);
+    }
 }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
@@ -16,7 +17,9 @@ import android.widget.ImageView;
 import java.util.Iterator;
 import java.util.Set;
 
+import static android.R.attr.data;
 import static android.media.ToneGenerator.MAX_VOLUME;
+import static com.example.terry.strat_rpg.MainActivity.soundPool;
 
 /**
  * CreateAndLoadGamePopUp will display a pop up dialog for Creating or Loading a new game.
@@ -48,13 +51,6 @@ public class CreateAndLoadGamePopUp extends Activity {
         intMusicVolume = (float)b.get("intMusicVolume");
         intSoundVolume = (float)b.get("intSoundVolume");
 
-        mpCancel = MediaPlayer.create(super.getApplicationContext(), R.raw.crusader_menu_cancel);
-        float soundVolume = (float)(Math.log(MAX_VOLUME - intSoundVolume)/Math.log(MAX_VOLUME));
-        mpCancel.setVolume(1-soundVolume, 1-soundVolume);
-
-        mpConfirm = MediaPlayer.create(super.getApplicationContext(), R.raw.crusader_menu_confirm);
-        mpConfirm.setVolume(1-soundVolume, 1-soundVolume);
-
         // Gets rid of the white corners around the edges
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         getWindow().setLayout((int) (width*.7), (int) (height*.7));
@@ -66,7 +62,6 @@ public class CreateAndLoadGamePopUp extends Activity {
         centerLayout.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
                 System.out.println("Center Save File Clicked!");
-                // Load Game
                 loadGame(v);
             }
         });
@@ -74,7 +69,6 @@ public class CreateAndLoadGamePopUp extends Activity {
         rightLayout.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
                 System.out.println("Right Save File Clicked!");
-                // Load Game
                 loadGame(v);
             }
         });
@@ -83,7 +77,6 @@ public class CreateAndLoadGamePopUp extends Activity {
         leftLayout.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
                 System.out.println("Left Save File Clicked!");
-                // Load Game
                 loadGame(v);
             }
         });
@@ -133,10 +126,9 @@ public class CreateAndLoadGamePopUp extends Activity {
         }
 
         // Load data, then send it to ConfirmationPopUp
-        mpConfirm.start();
+        soundPool.play(1, intSoundVolume / 10, intSoundVolume / 10, 1, 0, 1f);
         Intent i = new Intent(CreateAndLoadGamePopUp.this, ConfirmationPopUp.class);
         i.putExtra("saveSlot", saveSlot);
-
         i.putExtra("intMusicVolume", intMusicVolume);
         i.putExtra("intSoundVolume", intSoundVolume);
 
@@ -146,13 +138,12 @@ public class CreateAndLoadGamePopUp extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == 222 && resultCode == RESULT_OK){
             // receive data
             Bundle b = data.getExtras();
             confirmStart = (boolean) b.get("confirmStart");
             saveSlot = (int) b.get("saveSlot");
-
-            System.out.println("WE SHOULD HAVE SAVESLOT = " + saveSlot);
             data.putExtra("saveSlot", saveSlot);
 
             // If confirmStart == true, the game is ready to load the save file

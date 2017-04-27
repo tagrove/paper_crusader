@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import static android.media.ToneGenerator.MAX_VOLUME;
+import static com.example.terry.strat_rpg.MainActivity.soundPool;
 
 /**
  * Displays a dialog to the user confirming their selection for creating or loading a game.
@@ -29,6 +29,7 @@ public class ConfirmationPopUp extends Activity {
 
     private MediaPlayer mpCancel, mpConfirm;
     private boolean confirmStart;
+    private static float soundVolume;
     private int saveSlot;
 
     @Override
@@ -53,44 +54,15 @@ public class ConfirmationPopUp extends Activity {
         Bundle b = i.getExtras();
 
         saveSlot = (int)b.get("saveSlot");
-        TextView confirmText = (TextView) findViewById(R.id.loadGameText);
+        soundVolume = (float) b.get("intSoundVolume");
+
+        TextView confirmText = (TextView) findViewById(R.id.quitGameText);
         String gameText = "Load Game " + saveSlot + "?";
         confirmText.setText(gameText);
 
-
-        // Initializes sound with the correct volume settings from MainActivity
-        float intSoundVolume = (float)b.get("intSoundVolume");
-        mpCancel = MediaPlayer.create(super.getApplicationContext(), R.raw.crusader_menu_cancel);
-        float soundVolume = (float)(Math.log(MAX_VOLUME - intSoundVolume)/Math.log(MAX_VOLUME));
-        mpCancel.setVolume(1-soundVolume, 1-soundVolume);
-
-        // TODO - Find the best way to implement these sounds.  Is setting mp = null necessary?
-        mpCancel.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @SuppressWarnings("UnusedAssignment")
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mp.reset();
-                mp.release();
-                mp = null;
-            }
-
-        });
-
-        mpConfirm = MediaPlayer.create(super.getApplicationContext(), R.raw.crusader_menu_confirm);
-        mpCancel.setVolume(1-soundVolume, 1-soundVolume);
-        mpCancel.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @SuppressWarnings("UnusedAssignment")
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mp.reset();
-                mp.release();
-                mp = null;
-            }
-        });
-
         // Initializes buttons to confirm or cancel
         Button confirmButton = (Button) findViewById(R.id.confirmButton);
-        Button cancelButton = (Button) findViewById(R.id.cancelButton);
+        Button cancelButton = (Button) findViewById(R.id.cancelQuitButton);
 
         // Programmatically assigns locations of the buttons.
         // This code currently has some major issues, but looks okay on a specific device.
@@ -103,8 +75,7 @@ public class ConfirmationPopUp extends Activity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mpCancel = MediaPlayer.create(ConfirmationPopUp.this, R.raw.crusader_menu_cancel);
-                mpCancel.start();
+                soundPool.play(2, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
                 confirmStart = false;
                 onBackPressed();
             }
@@ -112,9 +83,7 @@ public class ConfirmationPopUp extends Activity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Time to start a save game!");
-                mpConfirm = MediaPlayer.create(ConfirmationPopUp.this, R.raw.crusader_begin_new_save);
-                mpConfirm.start();
+                soundPool.play(4, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
                 confirmStart = true;
                 onBackPressed();
             }

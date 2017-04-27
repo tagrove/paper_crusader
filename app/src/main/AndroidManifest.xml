@@ -14,7 +14,13 @@
         <activity
             android:name=".ConfirmationPopUp"
             android:theme="@style/AppTheme.CustomTheme">
-
+        </activity>
+        <activity
+        android:name=".EquipmentPopUp"
+        android:theme="@style/AppTheme.CustomTheme">
+        </activity>
+        <activity android:name=".ConfirmQuitGame"
+            android:theme="@style/AppTheme.CustomTheme">
         </activity>
         <activity
             android:name=".CreateAndLoadGamePopUp"

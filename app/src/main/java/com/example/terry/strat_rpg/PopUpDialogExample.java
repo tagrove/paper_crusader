@@ -75,7 +75,7 @@ public class PopUpDialogExample extends Activity {
 
         //Initializes buttons to confirm or cancel starting a new game
         Button confirmButton = (Button) findViewById(R.id.confirmButton);
-        Button cancelButton = (Button) findViewById(R.id.cancelButton);
+        Button cancelButton = (Button) findViewById(R.id.cancelQuitButton);
 
 
         /*

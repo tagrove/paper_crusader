@@ -39,9 +39,7 @@
             android:alpha=".4"
             android:background="@drawable/load_game_text_background"
             android:shadowColor="#000000"
-
             android:gravity="center_vertical|right"
-
 
             android:shadowDx="-3"
             android:shadowDy="1"
@@ -59,12 +57,10 @@
             android:layout_height="182dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
-            android:src="@raw/armor_icon"
+            android:src="@drawable/shield_icon"
             app:layout_constraintTop_toTopOf="parent" />
 
     </RelativeLayout>
-
-
 
     <!-- center third -->
 
@@ -76,7 +72,6 @@
         android:orientation="horizontal"
         tools:layout_editor_absoluteX="198dp"
         tools:layout_editor_absoluteY="0dp"
-
         android:background="@drawable/load_game_background"
         >
 
@@ -86,7 +81,7 @@
             android:layout_height="182dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
-            android:src="@raw/armor_icon"
+            android:src="@drawable/shield_icon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -133,7 +128,7 @@
             android:layout_height="182dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
-            android:src="@raw/armor_icon"
+            android:src="@drawable/shield_icon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -21,9 +20,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.Timer;
+
+import static com.example.terry.strat_rpg.R.id.companyTextView;
 
 /**
  * @name Terry Grové
@@ -53,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
     final String MY_APP_VERSION = "version: there are bugs";
     public static MediaPlayer mpOpening, mpSound;
     public boolean loaded = false;
+    private boolean loading = false;
     public final int MAX_VOLUME = 9;
     private float musicVolume = 5;
     private float soundVolume = 5;
+
 
 
     public static SoundPool soundPool;
@@ -97,12 +98,15 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
+
+
         //noinspection deprecation
         soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
         soundPoolMap = new HashMap<Integer, Integer>();
         soundPoolMap.put(1, soundPool.load(this, R.raw.crusader_menu_confirm, 1));
         soundPoolMap.put(2, soundPool.load(this, R.raw.crusader_menu_cancel, 1));
         soundPoolMap.put(3, soundPool.load(this, R.raw.crusader_opening_theme, 1));
+        soundPoolMap.put(4, soundPool.load(this, R.raw.crusader_begin_new_save, 1));
 
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             public void onLoadComplete(SoundPool soundPool, int sampleId,int status) {
@@ -120,6 +124,19 @@ public class MainActivity extends AppCompatActivity {
         mpSound.setVolume(1-soundVolume, 1-soundVolume);
         mpOpening.start();
         soundVolume = 5f;
+        musicVolume = 5f;
+
+        Intent previousIntent = getIntent();
+        Bundle b = previousIntent.getExtras();
+        if (b != null){
+            soundVolume = b.getFloat("intSoundVolume");
+            musicVolume = b.getFloat("intMusicVolume");
+
+            System.out.println("Grabbed values! soundVolume = " + soundVolume);
+        }
+
+        System.out.println("soundVolume = " + soundVolume);
+        System.out.println("musicVolume = " + musicVolume);
 
         // Initializes the rating bars corresponding to the sound levels at 50% (5 bars)
         TextView companyTextView = (TextView) findViewById(R.id.companyTextView);
@@ -154,16 +171,21 @@ public class MainActivity extends AppCompatActivity {
         Button newGameButton = (Button) findViewById(R.id.newGameButton);
         newGameButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-                v.startAnimation(animAlpha);
-                soundPool.play(1, soundVolume/10,  soundVolume/10, 1, 0, 1f);
 
-                Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
-                i.putExtra("intMusicVolume", musicVolume);
-                i.putExtra("intSoundVolume", soundVolume);
-                i.putExtra("new", "new");
+                // Loading checks to ensure that a save slot has not already been selected
+                // and the activity is getting ready to launch
+                if (!loading) {
+                    v.startAnimation(animAlpha);
+                    soundPool.play(1, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
 
-                // Code 222 = Create New Game
-                startActivityForResult(i, 222);
+                    Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
+                    i.putExtra("intMusicVolume", musicVolume);
+                    i.putExtra("intSoundVolume", soundVolume);
+                    i.putExtra("new", "new");
+
+                    // Code 222 = Create New Game
+                    startActivityForResult(i, 222);
+                }
             }
         });
 
@@ -171,15 +193,21 @@ public class MainActivity extends AppCompatActivity {
         Button loadGameButton = (Button) findViewById(R.id.loadGameButton);
         loadGameButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-                v.startAnimation(animAlpha);
-                soundPool.play(1, soundVolume/10,  soundVolume/10, 1, 0, 1f);
-                Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
-                i.putExtra("intMusicVolume", musicVolume);
-                i.putExtra("intSoundVolume", soundVolume);
-                i.putExtra("load", "load");
 
-                // Code 111 = Load Existing Game
-                startActivityForResult(i, 111);
+                // Loading checks to ensure that a save slot has not already been selected
+                // and the activity is getting ready to launch
+                if (!loading) {
+
+                    v.startAnimation(animAlpha);
+                    soundPool.play(1, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
+                    Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
+                    i.putExtra("intMusicVolume", musicVolume);
+                    i.putExtra("intSoundVolume", soundVolume);
+                    i.putExtra("load", "load");
+
+                    // Code 111 = Load Existing Game
+                    startActivityForResult(i, 111);
+                }
             }
         });
 
@@ -187,16 +215,20 @@ public class MainActivity extends AppCompatActivity {
         Button optionsButton = (Button) findViewById(R.id.options_button);
         optionsButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-                v.startAnimation(animAlpha);
 
-                soundPool.play(1, soundVolume/10,  soundVolume/10, 1, 0, 1f);
-                Intent i = new Intent(MainActivity.this, OptionsPopUp.class);
-                i.putExtra("options", "options");
-                i.putExtra("intMusicVolume", musicVolume);
-                i.putExtra("intSoundVolume", soundVolume);
+                // Loading checks to ensure that a save slot has not already been selected
+                // and the activity is geting ready to launch
+                if (!loading) {
+                    v.startAnimation(animAlpha);
+                    soundPool.play(1, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
+                    Intent i = new Intent(MainActivity.this, OptionsPopUp.class);
 
-                // Code 333 = Options
-                startActivityForResult(i, 333);
+                    i.putExtra("intMusicVolume", musicVolume);
+                    i.putExtra("intSoundVolume", soundVolume);
+
+                    // Code 333 = Options
+                    startActivityForResult(i, 333);
+                }
             }
         });
     }
@@ -204,23 +236,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Bundle b = data.getExtras();
-        System.out.println(data.getExtras().toString());
-        if (requestCode == 333 && resultCode == RESULT_OK){
-            soundVolume = (float) b.get("intSoundVolume");
-            musicVolume = (float) b.get("intMusicVolume");
-        }
+        if (data != null){
+            Bundle b = data.getExtras();
+            if (requestCode == 333 && resultCode == RESULT_OK){
+                soundVolume = (float) b.get("intSoundVolume");
+                musicVolume = (float) b.get("intMusicVolume");
+            }
 
-        // 111 = LoadGame.  If Boolean confirmStart == true, time to load a new game.
-        else if (requestCode == 111 && resultCode == RESULT_OK){
-            startGame();
-        }
+            // 111 = LoadGame.  If Boolean confirmStart == true, time to load a new game.
+            else if (requestCode == 111 && resultCode == RESULT_OK){
+                startGame();
+                loading = true;
+            }
 
-        // 222 = NewGame.  If Boolean confirmStart == true, time to create a new game.
-        else if (requestCode == 222 && resultCode == RESULT_OK){
-            startGame();
+            // 222 = NewGame.  If Boolean confirmStart == true, time to create a new game.
+            else if (requestCode == 222 && resultCode == RESULT_OK){
+                startGame();
+                loading = true;
+            }
+            super.onActivityResult(requestCode, resultCode, data);
+        }else {
+            soundPool.play(2, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void startGame(){
@@ -231,11 +268,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent mainIntent = new Intent(MainActivity.this, Game.class);
                 mainIntent.putExtra("intMusicVolume", musicVolume);
                 mainIntent.putExtra("intSoundVolume", soundVolume);
-
                 Player player = new Player();
-
                 mainIntent.putExtra("player", player);
 
+                System.out.println("Main -> game, sound = " + soundVolume);
                 startActivity(mainIntent);
 
                 /* Finish activity so user cannot go back to it.

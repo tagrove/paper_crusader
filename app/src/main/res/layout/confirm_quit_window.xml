@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/menu_style"
+
     android:hapticFeedbackEnabled="true"
     android:shadowColor="#0C16A8"
     android:shadowDx="-3"
@@ -16,21 +17,21 @@
         android:id="@+id/quitGameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Load Game 3?"
-        android:textSize="24sp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="87dp"
-        android:layout_marginStart="7dp"
-        tools:layout_constraintLeft_creator="1"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="87dp"
+        android:text="Quit Game?"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1" />
 
     <Button
-        android:id="@+id/confirmButton"
+        android:id="@+id/confirmQuitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/cancelQuitButton"
@@ -40,9 +41,9 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="204dp"
         android:layout_marginTop="8dp"
-        android:text="okay"
-        android:background="@drawable/confirm_button_style"
         android:alpha=".8"
+        android:background="@drawable/confirm_button_style"
+        android:text="okay"
 
 
         app:layout_constraintBottom_toBottomOf="parent"
@@ -50,8 +51,7 @@
         app:layout_constraintTop_toBottomOf="@+id/quitGameText"
         app:layout_constraintVertical_bias="0.502"
         tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1"
-        />
+        tools:layout_constraintLeft_creator="1" />
 
     <Button
         android:id="@+id/cancelQuitButton"

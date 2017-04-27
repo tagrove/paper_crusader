@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_game"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:foreground="@drawable/shape_window_dim" >
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -63,7 +71,7 @@
                 android:id="@+id/player_image"
                 android:layout_width="wrap_content"
                 android:layout_height="75dp"
-                app:srcCompat="@drawable/crusader_placeholder"
+                app:srcCompat="@drawable/crusader_placeholder_alpha"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
@@ -74,7 +82,7 @@
                 android:id="@+id/monster_image"
                 android:layout_width="wrap_content"
                 android:layout_height="75dp"
-                app:srcCompat="@drawable/slime_monster"
+                app:srcCompat="@drawable/slime"
                 android:layout_alignTop="@+id/player_image"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
@@ -93,6 +101,7 @@
                 android:layout_height="match_parent">
 
                 <!-- Layout to organize Equipment -->
+
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -103,7 +112,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
-                        android:src="@raw/armor_icon"
+                        android:src="@drawable/shield_icon"
                         android:layout_centerVertical="true"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
@@ -135,7 +144,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
-                        android:src="@raw/item_icon"
+                        android:src="@drawable/talent_tree"
                         android:layout_centerVertical="true"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
@@ -166,7 +175,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
-                        android:src="@raw/sword_icon"
+                        android:src="@raw/settings_icon"
                         android:layout_centerVertical="true"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
@@ -182,9 +191,28 @@
                         android:text="Settings"
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@id/upgrade_toolbar_settings_icon"
-                        android:layout_toEndOf="@id/upgrade_toolbar_settings_icon"/>
+                        android:layout_toEndOf="@id/upgrade_toolbar_settings_icon"
+                        android:id="@+id/textView" />
+
                 </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/home_icon_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".25"
+                    android:background="@drawable/load_game_background">
+                    <ImageView
+                        android:id="@+id/imageView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        app:srcCompat="@drawable/home_icon"
+                        android:paddingLeft="10dp"/>
+                </RelativeLayout>
+
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
     </LinearLayout>
 </RelativeLayout>
+</FrameLayout>
