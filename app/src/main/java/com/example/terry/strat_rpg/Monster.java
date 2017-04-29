@@ -1,10 +1,8 @@
 package com.example.terry.strat_rpg;
 
 /**
- * Created by Terry on 4/23/2017.
+ * This class represents the monster.
  */
-
-
 public class Monster extends Agent {
 
     public Monster() {

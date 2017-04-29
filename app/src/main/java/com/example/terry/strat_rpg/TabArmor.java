@@ -16,6 +16,7 @@ import android.widget.TabHost.TabSpec;
 
 /**
  * EquipmentPopUp - Allows the player to view purchased equipment, or to buy new equipment
+ * TODO: Implement everything in this class.
  */
 public class TabArmor extends Activity implements View.OnClickListener {
 

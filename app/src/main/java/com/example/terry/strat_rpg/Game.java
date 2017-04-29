@@ -9,11 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ContentFrameLayout;
+import android.widget.Toast;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -56,7 +54,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     HashMap<Integer, Integer> soundPoolMap;
 
     //TODO - Organize monsters into some form of list so that they may be sequentially loaded as needed.
-    ArrayList<Monster> monsterArrayList = new ArrayList<Monster>();
+    ArrayList<Monster> monsterArrayList = new ArrayList<>();
 
     //TODO - Use to track how many monster of each type from the list have been killed.  When monsterCount = 5, next monster
     //TODO - will be a monster of the next type.  IE 1 1 1 1 1, 2 2 2 2 2, 3 3 3 3 3, BOSS
@@ -106,7 +104,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             }
         }
 
-
         // Set up the background so that it has two images in order to have the
         // infinite scrolling background.
         final ImageView backgroundOne = (ImageView) findViewById(R.id.background_one);
@@ -141,19 +138,20 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         monsterImage = (ImageView) findViewById(R.id.monster_image);
         playerImage = (ImageView) findViewById(R.id.player_image);
 
-        // Retrieve Player information from MainActivity (which read from save file)
+        // Retrieve Player information from MainActivity (which is read in from the save file)
         player = new Player();
         player = (Player) getIntent().getSerializableExtra("player");
-        // Temporarily needs to be here for the combat logic to work
+
+        // Used to make the demo a bit faster.  Normally the player will be inflated from the save file dat.
         player.setAgentName("player");
         player.setCurrentHealth(50);
         player.setMaxHealth(50);
+        player.setStrength(10);
 
         monster = new Monster();
-        // Temporarily needs to be here for the combat logic to work
-        monster.setAgentName("monster");
-        monster.setAttackSpeed(5.0f);
 
+        // Temporarily needs to be here for the combat logic to work
+        monster.setAttackSpeed(5.0f);
 
         soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
         soundPoolMap = new HashMap<>();
@@ -185,10 +183,8 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             public void onInit(int status) {
                 ttobj.setLanguage(Locale.UK);
                 ttobj.setPitch(.5f);
-
             }
         });
-
     }
 
     /**
@@ -233,6 +229,11 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         }
     }
 
+    /**
+     * Contains the logic to see which agent will be swinging - either the player or the monster.
+     * When the attacker is determined, the animation is called and the monster / player stats are
+     * updated.
+     */
     public void update() {
 
         // Delay is designed to allow the animation to have time to complete while the player or
@@ -281,34 +282,55 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         } else if (playerAttacking){
             updateStats(player, monster);
         }
-
         monsterAttacking = false;
         playerAttacking = false;
     }
 
     // TODO Calculate all necessary combat stats such as lifesteal, critical, block, etc.
 
+    /**
+     * updateStats will calculate whether or not a hit landed, if a critical hit landed,
+     * or if the defender dodged.  Based on the results, the health of the defender (and possibly attacker)
+     * will then be updated.
+     *
+     * @param attacker - whichever agent is attacking
+     * @param defender - whichever agent is defending
+     */
     public void updateStats(Agent attacker, Agent defender){
 
         int dodge = random.nextInt(100);
         int damage = attacker.getStrength();
 
+        // The defender managed to dodge
         if (dodge < defender.getDodgeRate()){
             soundPool.play(4, soundVolume/10, soundVolume/10, 1, 0, 1f);
-        } else {
+        }
+
+        // The defender was hit
+        else {
             int crit = random.nextInt(100);
             damage = damage - defender.getArmor();
+
+            // Ensures that at least one point of damage is done (and does not allow for negative damage)
             if (damage <= 0){
                 damage = 1;
             }
+
+            // If a critical strike was made, the damage is doubled.  This formula may change in the future.
             if (crit < attacker.getCriticalRate()){
                 soundPool.play(5, soundVolume/10, soundVolume/10, 1, 0, 1f);
                 damage *= 2;
-            } else {
+            }
+
+            // A normal strike was made, no need for a multiplier.
+            else {
                 soundPool.play(2, soundVolume/10, soundVolume/10, 1, 0, 1f);
             }
 
+            // Update defender's health based on damage received
             defender.setCurrentHealth(defender.getCurrentHealth() - damage);
+
+            // The defender died, take the appropriate action
             if (defender.getCurrentHealth() <= 0){
                 if (defender.getAgentName().equalsIgnoreCase("player")){
                     player.setCurrentHealth(player.getMaxHealth());
@@ -317,10 +339,10 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                     monster.setCurrentHealth(monster.getMaxHealth());
                     monsterDied();
                 }
-            } else {
-                // Update any other stats needing to be updated - this is where combat damage was dealt,
-                // but nobody has died.
             }
+            // The defender did not die.  Any other miscellaneous actions may take place here if needed
+            // else {}
+
         }
     }
 
@@ -329,7 +351,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
      * and load the next monster object as the monster.
      */
     public void monsterDied(){
-        System.out.println("PLAYER DEFEATED THE MONSTER!");
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
@@ -337,11 +358,14 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         }
         soundPool.play(7, soundVolume/10, soundVolume/10, 1, 0, 1f);
         // TODO Animate monster coming onto the screen
-
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), "Monster died, load next Monster",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
         monstersKilledThisRun++;
-        System.out.println("Number of monsters killed: " + monstersKilledThisRun);
         initializeMonster(monstersKilledThisRun);
-
         // TODO Award Experience / Gold
     }
 
@@ -357,35 +381,39 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             e.printStackTrace();
         }
 
+        // Shoutout to Professor Fuchs :)
         if (monster.getAgentName().equalsIgnoreCase("boss")){
             ttobj.speak("We're all friends here", TextToSpeech.QUEUE_FLUSH, null);
         } else {
             soundPool.play(6, soundVolume/10, soundVolume/10, 1, 0, 1f);
         }
 
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), "Player died, display exp / gold gained",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // This is just for demo purposes.  Normally the monster queue resets, which requires
+        // all of the 'current run' values to reset to 0.
         player.setCurrentHealth(player.getMaxHealth());
+
         //goldEarnedThisRun = 0;
         //experienceEarnedThisRun = 0;
         //monstersKilledThisRun = 0;
         // TODO Open Activity that allows player to see stats of the current run
 
         // TODO Open Activity that allows player to purchase upgrades
-
-
     }
 
-    // This method executes when the player starts the game
     @Override
     protected void onResume() {
-
         gameLayout.getForeground().setAlpha(0);
-
         super.onResume();
         this.resume();
     }
 
-    // If SimpleGameEngine Activity is started then
-    // start our thread.
     public void resume() {
         running = true;
         if (!confirmQuit) {
@@ -394,7 +422,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         }
     }
 
-    // This method executes when the player quits the game
     @Override
     protected void onPause() {
         super.onPause();
@@ -404,17 +431,13 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         this.pause();
     }
 
-    // If SimpleGameEngine Activity is paused/stopped
-    // shutdown our thread.
     public void pause() {
         running = false;
-
         try {
             gameThread.join();
         } catch (InterruptedException e) {
             Log.e("Error:", "joining thread");
         }
-
     }
 
     /**
@@ -422,11 +445,11 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
      * @param name - determines who the attacker is to apply the appropriate animation
      */
     public void animateAttack(String name){
-
         final String attackerName = name;
+
+        // The runOnUiThread is needed to update elements of the View since they are in separate threads.
         runOnUiThread(new Runnable() {
             public void run() {
-
                 TranslateAnimation animation;
                 if (attackerName.equalsIgnoreCase("monster") || attackerName.equalsIgnoreCase(("boss"))){
                     animation = new TranslateAnimation(0.0f, -1200, 0.0f, 0.0f);
@@ -438,7 +461,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                 animation.setRepeatCount(1);  // animation repeat count
                 animation.setRepeatMode(2);   // repeat animation (left to right, right to left )
 
-                // TODO: Fix this so that it syncs up properly
+                // TODO: Fix this so that the animations sync up properly
                 final Animation animation2 = new AlphaAnimation(1.0f, 0.0f);
                 animation2.setDuration(3);
                 animation2.setRepeatCount(3);
@@ -461,10 +484,10 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                     }
                 });
 
+                // Enacts the appropriate animation on the correct image.
                 if (attackerName.equalsIgnoreCase("monster") || attackerName.equalsIgnoreCase(("boss"))){
                     monsterImage.startAnimation(animation);
                     playerImage.startAnimation(animation2);
-
                 } else {
                     monsterImage.startAnimation(animation2);
                     playerImage.startAnimation(animation);
@@ -473,12 +496,17 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         });
     }
 
+    /**
+     * This is the actual loop that will then call methods to check for changes every so often.
+     * Due to the nature of this program (user input is not responsive in terms of frames), the
+     * check will happen once every 200 milliseconds, or 5 times per second.  There is no specific
+     * need for this value, so it may be changed if desired.
+     */
     public void run() {
         long lastTime = System.nanoTime();
         double ns = 1000000000;
         double delta = 0;
         long timer = System.currentTimeMillis();
-
         while(running){
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
@@ -486,7 +514,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             while(delta >= 1){
                 delta--;
             }
-
             // Originally 1000, which checks every second.
             if(System.currentTimeMillis() - timer > timeBetweenTicks){
                 timer += timeBetweenTicks;
@@ -495,14 +522,22 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         }
     }
 
-
+    /**
+     * Gets the result from an activity that was finished.  The only two results currently
+     * are from the options (to change sound / music volume) and from the home button
+     * (to confirm to quit the game).
+     *
+     * This method can then dictate what exactly will happen next.
+     * TODO: implement
+     * @param requestCode - the request code initially sent out
+     * @param resultCode - the result code received
+     * @param data - the returning intent, including any extras
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (data != null) {
             Bundle b = data.getExtras();
-
-            // 888 = go home
+            // 888 = Go to MainActivity
             if (requestCode == 888 && resultCode == RESULT_OK) {
                 // If confirmQuit = true, quit.
                 confirmQuit = (boolean) b.get("confirmQuit");
@@ -513,11 +548,15 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                 soundVolume = (float) b.get("intSoundVolume");
                 musicVolume = (float) b.get("intMusicVolume");
             }
-
         }
     }
 
-
+    /**
+     * Method called when the user wants to quit the game.  This method should either pass the
+     * player object back to the MainActivity where it should be saved, or save the player
+     * here.
+     * TODO: Save the player object to file.
+     */
     public void quitGame(){
         int runTime = 1000;
         new Handler().postDelayed(new Runnable() {
@@ -526,8 +565,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                 Intent mainIntent = new Intent(Game.this, MainActivity.class);
                 mainIntent.putExtra("intMusicVolume", musicVolume);
                 mainIntent.putExtra("intSoundVolume", soundVolume);
-
-                System.out.println("About to send Sound back to main, sound = " + soundVolume);
                 startActivity(mainIntent);
 
                 /* Finish activity so user cannot go back to it.
@@ -544,6 +581,14 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         }, runTime);
     }
 
+    /**
+     * Load the next monster in the line.  In the future, this could be randomized
+     * or have a set pattern, but for now, we used a very simple logic of defeat X number
+     * of monster1, Y number of monster2, Z number of monster3, then fight the boss.
+     *
+     * TODO: See about tying the image and sound effects used for each monster to the monster object
+     * @param monsterNumber - how many monsters have been killed thus far
+     */
     public void initializeMonster(int monsterNumber){
         if (monsterNumber < 1){
             // Slime
@@ -553,7 +598,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                   monsterImage.setImageResource(R.drawable.slime);
               }
             });
-
         } else if (monsterNumber < 2){
             // Skeleton
             monster = new Monster("monster", 25, 25, 1, 8, 8, 4, 4, 0, 0, 5, 5, 5);
@@ -562,8 +606,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                     monsterImage.setImageResource(R.drawable.goblin);
                 }
             });
-
-
         } else if (monsterNumber < 3){
             // Wizard
             monster = new Monster("monster", 30, 30, 1, 11, 11, 6, 6, 0, 0, 6, 6, 6);
@@ -581,8 +623,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                     monsterImage.setImageResource(R.drawable.android_robot_evil);
                 }
             });
-
         }
-
     }
 }

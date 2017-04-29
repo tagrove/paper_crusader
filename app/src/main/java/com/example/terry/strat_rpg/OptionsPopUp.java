@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.Button;
 
 import static com.example.terry.strat_rpg.MainActivity.soundPool;
-import static com.example.terry.strat_rpg.R.id.mainMenuButton;
 import static com.example.terry.strat_rpg.R.id.musicDecreaseVolume;
 
 /**

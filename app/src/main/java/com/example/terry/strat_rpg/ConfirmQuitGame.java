@@ -1,26 +1,17 @@
 package com.example.terry.strat_rpg;
 
-/**
- * Created by Terry on 4/24/2017.
- */
-
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
-
 import static com.example.terry.strat_rpg.R.id.cancelQuitButton;
-import static com.example.terry.strat_rpg.R.id.confirmQuitButton;
 
 
 /**
- * This class exists merely as a template for new dialogs.
+ * This menu is for the user to confirm that they wish to quit the game.
  *
  */
 public class ConfirmQuitGame extends Activity {
@@ -43,18 +34,14 @@ public class ConfirmQuitGame extends Activity {
         getWindow().setLayout((int) (width*.5), (int) (height*.5));
         setContentView(R.layout.confirm_quit_window);
 
-
-
         //Initializes buttons to confirm or cancel starting a new game
         Button confirmButton = (Button) findViewById(R.id.confirmQuitButton);
         Button cancelButton = (Button) findViewById(cancelQuitButton);
-
 
         /*
          * Sets up the locations of the buttons.  This popup is currently a bit off,
          * so this code may need to be redone in the future.
          */
-
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -62,7 +49,6 @@ public class ConfirmQuitGame extends Activity {
                 onBackPressed();
             }
         });
-
 
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,20 +58,15 @@ public class ConfirmQuitGame extends Activity {
                 onBackPressed();
             }
         });
-
     }
 
     @Override
     public void onBackPressed() {
-
         Intent i = new Intent();
         setResult(RESULT_OK, i);
         i.putExtra("confirmQuit", confirmQuit);
         finish();
         super.onBackPressed();
     }
-
-
-
 
 }
