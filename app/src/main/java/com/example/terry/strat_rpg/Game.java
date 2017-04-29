@@ -7,6 +7,7 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ContentFrameLayout;
 import android.util.Log;
@@ -23,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 
@@ -58,10 +60,13 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
     //TODO - Use to track how many monster of each type from the list have been killed.  When monsterCount = 5, next monster
     //TODO - will be a monster of the next type.  IE 1 1 1 1 1, 2 2 2 2 2, 3 3 3 3 3, BOSS
-    private int monsterCount = 1;
+    private int goldEarnedThisRun = 0;
+    private int monstersKilledThisRun = 0;
+    private int experienceEarnedThisRun = 0;
     private boolean monsterAttacking = false;
     private boolean playerAttacking = false;
     private Random random = new Random();
+    private TextToSpeech ttobj;
 
 
     public RelativeLayout equipmentLayout, talentsLayout, settingsLayout, homeLayout;
@@ -75,14 +80,8 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         musicVolume = (float) bundle.get("intMusicVolume");
         soundVolume = (float) bundle.get("intSoundVolume");
 
-        /* TODO - Is this code necessary?  Test to see what we can change */
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         setContentView(R.layout.activity_game);
         View decorView = getWindow().getDecorView();
-
 
         // Hide both the navigation bar and the status bar.
         // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
@@ -147,12 +146,14 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         player = (Player) getIntent().getSerializableExtra("player");
         // Temporarily needs to be here for the combat logic to work
         player.setAgentName("player");
+        player.setCurrentHealth(50);
+        player.setMaxHealth(50);
 
         monster = new Monster();
-        // Temporarily needs to be here for the combat logc to work
+        // Temporarily needs to be here for the combat logic to work
         monster.setAgentName("monster");
-
         monster.setAttackSpeed(5.0f);
+
 
         soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
         soundPoolMap = new HashMap<>();
@@ -176,6 +177,17 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
         gameLayout = (FrameLayout) findViewById( R.id.activity_game);
         gameLayout.getForeground().setAlpha( 0);
+
+        initializeMonster(monstersKilledThisRun);
+
+        ttobj = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                ttobj.setLanguage(Locale.UK);
+                ttobj.setPitch(.5f);
+
+            }
+        });
 
     }
 
@@ -220,8 +232,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             }
         }
     }
-
-
 
     public void update() {
 
@@ -310,7 +320,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             } else {
                 // Update any other stats needing to be updated - this is where combat damage was dealt,
                 // but nobody has died.
-
             }
         }
     }
@@ -329,6 +338,10 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         soundPool.play(7, soundVolume/10, soundVolume/10, 1, 0, 1f);
         // TODO Animate monster coming onto the screen
 
+        monstersKilledThisRun++;
+        System.out.println("Number of monsters killed: " + monstersKilledThisRun);
+        initializeMonster(monstersKilledThisRun);
+
         // TODO Award Experience / Gold
     }
 
@@ -338,14 +351,22 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
      * of the data on this current activity.
      */
     public void playerDied(){
-        System.out.println("PLAYER DIED :(");
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        soundPool.play(6, soundVolume/10, soundVolume/10, 1, 0, 1f);
 
+        if (monster.getAgentName().equalsIgnoreCase("boss")){
+            ttobj.speak("We're all friends here", TextToSpeech.QUEUE_FLUSH, null);
+        } else {
+            soundPool.play(6, soundVolume/10, soundVolume/10, 1, 0, 1f);
+        }
+
+        player.setCurrentHealth(player.getMaxHealth());
+        //goldEarnedThisRun = 0;
+        //experienceEarnedThisRun = 0;
+        //monstersKilledThisRun = 0;
         // TODO Open Activity that allows player to see stats of the current run
 
         // TODO Open Activity that allows player to purchase upgrades
@@ -406,15 +427,11 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         runOnUiThread(new Runnable() {
             public void run() {
 
-                System.out.println("Name of attacker = " + attackerName);
                 TranslateAnimation animation;
-                if (attackerName.equalsIgnoreCase("monster")){
+                if (attackerName.equalsIgnoreCase("monster") || attackerName.equalsIgnoreCase(("boss"))){
                     animation = new TranslateAnimation(0.0f, -1200, 0.0f, 0.0f);
-                    System.out.println("Monster is attacking!");
                 } else {
                     animation = new TranslateAnimation(0.0f, 1200, 0.0f, 0.0f);
-
-                    System.out.println("Player is attacking!");
                 }
 
                 animation.setDuration(200);  // animation duration
@@ -444,7 +461,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                     }
                 });
 
-                if (attackerName.equalsIgnoreCase("monster")){
+                if (attackerName.equalsIgnoreCase("monster") || attackerName.equalsIgnoreCase(("boss"))){
                     monsterImage.startAnimation(animation);
                     playerImage.startAnimation(animation2);
 
@@ -525,5 +542,47 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                 timer.schedule(new FadeMusicOut(), 0, 200);
             }
         }, runTime);
+    }
+
+    public void initializeMonster(int monsterNumber){
+        if (monsterNumber < 1){
+            // Slime
+            monster = new Monster("monster", 15, 15, 1, 5, 5, 5, 5, 0, 0, 5, 5, 5);
+            runOnUiThread(new Runnable() {
+              public void run() {
+                  monsterImage.setImageResource(R.drawable.slime);
+              }
+            });
+
+        } else if (monsterNumber < 2){
+            // Skeleton
+            monster = new Monster("monster", 25, 25, 1, 8, 8, 4, 4, 0, 0, 5, 5, 5);
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    monsterImage.setImageResource(R.drawable.goblin);
+                }
+            });
+
+
+        } else if (monsterNumber < 3){
+            // Wizard
+            monster = new Monster("monster", 30, 30, 1, 11, 11, 6, 6, 0, 0, 6, 6, 6);
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    monsterImage.setImageResource(R.drawable.skeleton_mage);
+                }
+            });
+
+        } else {
+            // Boss
+            monster = new Monster("boss", 75, 75, 1, 20, 15, 6, 6, 0, 0, 3, 3, 3);
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    monsterImage.setImageResource(R.drawable.android_robot_evil);
+                }
+            });
+
+        }
+
     }
 }

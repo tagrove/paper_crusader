@@ -110,12 +110,12 @@
             android:id="@+id/musicVolumeRatingBar"
             style="@style/starRatingBar"
             android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:stepSize="1.0"
-            android:numStars="10"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="26dp" />
+            android:layout_marginTop="26dp"
+            android:numStars="10"
+            android:stepSize="1.0" />
 
 
     </RelativeLayout>

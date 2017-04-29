@@ -22,8 +22,6 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Timer;
 
-import static com.example.terry.strat_rpg.R.id.companyTextView;
-
 /**
  * @name Terry Grové
  * @name2 Stephen Penton
@@ -48,25 +46,20 @@ import static com.example.terry.strat_rpg.R.id.companyTextView;
  */
 public class MainActivity extends AppCompatActivity {
 
-    final String COMPANY_NAME = "iNeedADegree Games";
-    final String MY_APP_VERSION = "version: there are bugs";
+    private String COMPANY_NAME = "iNeedADegree Games";
+    private String MY_APP_VERSION = "version: there are bugs";
     public static MediaPlayer mpOpening, mpSound;
-    public boolean loaded = false;
+    private boolean soundIsLoaded = false;
     private boolean loading = false;
-    public final int MAX_VOLUME = 9;
+    private final int MAX_VOLUME = 9;
     private float musicVolume = 5;
     private float soundVolume = 5;
-
-
-
     public static SoundPool soundPool;
-    public HashMap<Integer, Integer> soundPoolMap;
-
+    private HashMap<Integer, Integer> soundPoolMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -98,11 +91,9 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
-
-
         //noinspection deprecation
         soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
-        soundPoolMap = new HashMap<Integer, Integer>();
+        soundPoolMap = new HashMap<>();
         soundPoolMap.put(1, soundPool.load(this, R.raw.crusader_menu_confirm, 1));
         soundPoolMap.put(2, soundPool.load(this, R.raw.crusader_menu_cancel, 1));
         soundPoolMap.put(3, soundPool.load(this, R.raw.crusader_opening_theme, 1));
@@ -110,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             public void onLoadComplete(SoundPool soundPool, int sampleId,int status) {
-                loaded = true;
+                soundIsLoaded = true;
             }
         });
 
@@ -131,12 +122,7 @@ public class MainActivity extends AppCompatActivity {
         if (b != null){
             soundVolume = b.getFloat("intSoundVolume");
             musicVolume = b.getFloat("intMusicVolume");
-
-            System.out.println("Grabbed values! soundVolume = " + soundVolume);
         }
-
-        System.out.println("soundVolume = " + soundVolume);
-        System.out.println("musicVolume = " + musicVolume);
 
         // Initializes the rating bars corresponding to the sound levels at 50% (5 bars)
         TextView companyTextView = (TextView) findViewById(R.id.companyTextView);
@@ -171,13 +157,11 @@ public class MainActivity extends AppCompatActivity {
         Button newGameButton = (Button) findViewById(R.id.newGameButton);
         newGameButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-
                 // Loading checks to ensure that a save slot has not already been selected
                 // and the activity is getting ready to launch
                 if (!loading) {
                     v.startAnimation(animAlpha);
                     soundPool.play(1, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
-
                     Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
                     i.putExtra("intMusicVolume", musicVolume);
                     i.putExtra("intSoundVolume", soundVolume);
@@ -197,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
                 // Loading checks to ensure that a save slot has not already been selected
                 // and the activity is getting ready to launch
                 if (!loading) {
-
                     v.startAnimation(animAlpha);
                     soundPool.play(1, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
                     Intent i = new Intent(MainActivity.this, CreateAndLoadGamePopUp.class);
@@ -215,14 +198,12 @@ public class MainActivity extends AppCompatActivity {
         Button optionsButton = (Button) findViewById(R.id.options_button);
         optionsButton.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-
                 // Loading checks to ensure that a save slot has not already been selected
                 // and the activity is geting ready to launch
                 if (!loading) {
                     v.startAnimation(animAlpha);
                     soundPool.play(1, soundVolume / 10, soundVolume / 10, 1, 0, 1f);
                     Intent i = new Intent(MainActivity.this, OptionsPopUp.class);
-
                     i.putExtra("intMusicVolume", musicVolume);
                     i.putExtra("intSoundVolume", soundVolume);
 
@@ -242,13 +223,11 @@ public class MainActivity extends AppCompatActivity {
                 soundVolume = (float) b.get("intSoundVolume");
                 musicVolume = (float) b.get("intMusicVolume");
             }
-
             // 111 = LoadGame.  If Boolean confirmStart == true, time to load a new game.
             else if (requestCode == 111 && resultCode == RESULT_OK){
                 startGame();
                 loading = true;
             }
-
             // 222 = NewGame.  If Boolean confirmStart == true, time to create a new game.
             else if (requestCode == 222 && resultCode == RESULT_OK){
                 startGame();
@@ -270,10 +249,7 @@ public class MainActivity extends AppCompatActivity {
                 mainIntent.putExtra("intSoundVolume", soundVolume);
                 Player player = new Player();
                 mainIntent.putExtra("player", player);
-
-                System.out.println("Main -> game, sound = " + soundVolume);
                 startActivity(mainIntent);
-
                 /* Finish activity so user cannot go back to it.
                 *  If user needs to return to the main activity, a new activity will be created*/
                 MainActivity.this.finish();
@@ -284,8 +260,10 @@ public class MainActivity extends AppCompatActivity {
 
                 // TODO - figure out how to make the music actually fade out.
                 timer.schedule(new FadeMusicOut(), 0, 200);
+                mpOpening.stop();
             }
         }, runTime);
     }
+
 
 }

@@ -32,9 +32,6 @@
             android:theme="@style/AppTheme.CustomTheme">
 
         </activity>
-        <activity android:name=".GameLoop">
-
-        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

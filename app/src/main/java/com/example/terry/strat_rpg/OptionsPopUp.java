@@ -54,8 +54,6 @@ public class OptionsPopUp extends Activity implements View.OnClickListener {
         intMusicVolume = (float)b.get("intMusicVolume");
         intSoundVolume = (float)b.get("intSoundVolume");
 
-
-
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
