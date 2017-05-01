@@ -4,21 +4,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import android.widget.Toast;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
-
-import java.util.Iterator;
-import java.util.Set;
-
-import static android.R.attr.data;
-import static android.media.ToneGenerator.MAX_VOLUME;
+import java.io.File;
+import java.util.Scanner;
 import static com.example.terry.strat_rpg.MainActivity.soundPool;
 
 /**
@@ -34,6 +30,11 @@ public class CreateAndLoadGamePopUp extends Activity {
     MediaPlayer mpConfirm, mpCancel;
     public float intMusicVolume, intSoundVolume;
     private int saveSlot = -1;
+    private String leftText = null;
+    private String centerText = null;
+    private String rightText = null;
+    private TextView leftSaveText, centerSaveText, rightSaveText;
+    private ImageView leftSaveImage, centerSaveImage, rightSaveImage;
     boolean confirmStart;
 
     @Override
@@ -61,14 +62,12 @@ public class CreateAndLoadGamePopUp extends Activity {
 
         centerLayout.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-                System.out.println("Center Save File Clicked!");
                 loadGame(v);
             }
         });
 
         rightLayout.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-                System.out.println("Right Save File Clicked!");
                 loadGame(v);
             }
         });
@@ -76,28 +75,38 @@ public class CreateAndLoadGamePopUp extends Activity {
 
         leftLayout.setOnClickListener(new View.OnClickListener(){
             @Override public void onClick(View v){
-                System.out.println("Left Save File Clicked!");
                 loadGame(v);
             }
         });
 
-        TextView leftSaveText = (TextView) findViewById(R.id.leftSaveText);
+        leftSaveText = (TextView) findViewById(R.id.leftSaveText);
         String testText = "random text can go here";
         leftSaveText.setText(testText);
 
-        TextView centerSaveText = (TextView) findViewById(R.id.centerSaveText);
+        centerSaveText = (TextView) findViewById(R.id.centerSaveText);
         centerSaveText.setText("01:17:04\nLevel: 06");
 
-        TextView rightSaveText = (TextView) findViewById(R.id.rightSaveText);
+        rightSaveText = (TextView) findViewById(R.id.rightSaveText);
         testText = "New Game";
         rightSaveText.setText(testText);
 
-        ImageView rightSaveImage = (ImageView) findViewById(R.id.rightSaveImage);
+
+        leftSaveImage = (ImageView) findViewById(R.id.leftSaveImage);
+        leftSaveImage.setImageDrawable(null);
+
+        centerSaveImage = (ImageView) findViewById(R.id.centerSaveImage);
+        centerSaveImage.setImageDrawable(null);
+
+        rightSaveImage = (ImageView) findViewById(R.id.rightSaveImage);
         rightSaveImage.setImageDrawable(null);
 
         int saveFilePosition = 0;
         Intent intent = new Intent();
         intent.putExtra("saveFilePosition",saveFilePosition); // data is the value you need in parent
+
+        //load data from files to display text
+        loadSaveData();
+
     }
 
     @Override
@@ -152,6 +161,52 @@ public class CreateAndLoadGamePopUp extends Activity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * Method to read data from save files and display info in game select screen
+     */
+    public void loadSaveData() {
+
+        String newGame = "New Game";
+        for (int i = 0; i < 3; i++) {
+            try {
+                File saveFile = new File(getFilesDir() + "/Save_" + i);
+                Scanner in = new Scanner(saveFile);
+                String text = in.next();
+                if (text.equalsIgnoreCase("new")) {
+                    if (i == 0)
+                        leftSaveText.setText(newGame);
+
+                    else if (i == 1)
+                        centerSaveText.setText(newGame);
+                    else
+                        rightSaveText.setText(newGame);
+                }
+                else {
+                    if (i == 0) {
+                        leftSaveText.setText(leftSaveText.getText().toString() + "\nLevel: " + in.nextInt());
+                        leftSaveImage.setImageResource(R.drawable.slime);
+                    }
+                    else if (i == 1) {
+                        centerSaveText.setText(centerSaveText.getText().toString() + "\nLevel: " + in.nextInt());
+                        centerSaveImage.setImageResource(R.drawable.goblin);
+                    }
+                    else {
+                        rightSaveText.setText(rightSaveText.getText().toString() + "\nLevel: " + in.nextInt());
+                        rightSaveImage.setImageResource(R.drawable.skeleton_mage);
+
+                    }
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "EXCEPTION", Toast.LENGTH_SHORT).show();
+                leftSaveText.setText("New Game");
+                centerSaveText.setText("New Game");
+                rightSaveText.setText("New Game");
+            }
+        }
     }
 
 }
