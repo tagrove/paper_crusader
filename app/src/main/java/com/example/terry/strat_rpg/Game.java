@@ -20,10 +20,15 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.FrameLayout;
+
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Timer;
 
 /**
@@ -52,6 +57,9 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     private FrameLayout gameLayout;
     SoundPool soundPool;
     HashMap<Integer, Integer> soundPoolMap;
+
+    private int saveSlot = 0;
+    private File saveFile = null;
 
     //TODO - Organize monsters into some form of list so that they may be sequentially loaded as needed.
     ArrayList<Monster> monsterArrayList = new ArrayList<>();
@@ -141,17 +149,41 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         // Retrieve Player information from MainActivity (which is read in from the save file)
         player = new Player();
         player = (Player) getIntent().getSerializableExtra("player");
+        saveSlot = getIntent().getIntExtra("saveSlot", 0);
 
         // Used to make the demo a bit faster.  Normally the player will be inflated from the save file dat.
-        player.setAgentName("player");
-        player.setCurrentHealth(50);
-        player.setMaxHealth(50);
-        player.setStrength(10);
+        try {
+            saveFile = new File(getFilesDir() + "/Save_" + saveSlot);
+            Scanner in = new Scanner(saveFile);
+            String text = in.next();
+            if (text == null)
+                throw new InputMismatchException();
+
+            if (text.equalsIgnoreCase("new")) {
+                player.setAgentName("player_" + saveSlot);
+                player.setCurrentHealth(50);
+                player.setMaxHealth(50);
+                player.setStrength(10);
+            }
+            else {
+                player.setAgentName(text);
+                player.setLevel(in.nextInt());
+                player.setCurrentHealth(in.nextInt());
+                player.setMaxHealth(in.nextInt());
+                player.setStrength(in.nextInt());
+                monstersKilledThisRun = in.nextInt();
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            player.setAgentName("player_" + saveSlot);
+            player.setCurrentHealth(50);
+            player.setMaxHealth(50);
+            player.setStrength(10);
+        }
 
         monster = new Monster();
-
-        // Temporarily needs to be here for the combat logic to work
-        monster.setAttackSpeed(5.0f);
 
         soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
         soundPoolMap = new HashMap<>();
@@ -205,18 +237,16 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
                 break;
             }case R.id.talents_icon_layout: {
-                System.out.println("Do something with Talents Icon!");
-
                 break;
             }case R.id.settings_icon_layout: {
                 final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
-                    view.startAnimation(animAlpha);
-                    Intent i = new Intent(Game.this, OptionsPopUp.class);
-                    i.putExtra("intMusicVolume", musicVolume);
-                    i.putExtra("intSoundVolume", soundVolume);
+                view.startAnimation(animAlpha);
+                Intent i = new Intent(Game.this, OptionsPopUp.class);
+                i.putExtra("intMusicVolume", musicVolume);
+                i.putExtra("intSoundVolume", soundVolume);
 
-                    // Code 333 = Options
-                    startActivityForResult(i, 333);
+                // Code 333 = Options
+                startActivityForResult(i, 333);
                 break;
             }case R.id.home_icon_layout: {
                 final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
@@ -282,8 +312,13 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         } else if (playerAttacking){
             updateStats(player, monster);
         }
+
         monsterAttacking = false;
         playerAttacking = false;
+
+        if (player.getTimeUntilAttack() < 0 || monster.getTimeUntilAttack() < 0){
+            update();
+        }
     }
 
     // TODO Calculate all necessary combat stats such as lifesteal, critical, block, etc.
@@ -332,12 +367,14 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
             // The defender died, take the appropriate action
             if (defender.getCurrentHealth() <= 0){
-                if (defender.getAgentName().equalsIgnoreCase("player")){
-                    player.setCurrentHealth(player.getMaxHealth());
-                    playerDied();
-                } else {
+                if (defender.getAgentName().equalsIgnoreCase("monster") ||
+                        defender.getAgentName().equalsIgnoreCase("boss")){
                     monster.setCurrentHealth(monster.getMaxHealth());
                     monsterDied();
+
+                } else {
+                    player.setCurrentHealth(player.getMaxHealth());
+                    playerDied();
                 }
             }
             // The defender did not die.  Any other miscellaneous actions may take place here if needed
@@ -542,6 +579,20 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                 // If confirmQuit = true, quit.
                 confirmQuit = (boolean) b.get("confirmQuit");
                 if (confirmQuit){
+                    try {
+                        PrintWriter out = new PrintWriter(saveFile);
+                        out.println(player.getAgentName());
+                        out.println(player.getLevel());
+                        out.println(player.getCurrentHealth());
+                        out.println(player.getMaxHealth());
+                        out.println(player.getStrength());
+                        out.println(monstersKilledThisRun);
+                        out.close();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(), "EXCEPTION", Toast.LENGTH_SHORT).show();
+                    }
                     quitGame();
                 }
             } else if (requestCode == 333 && resultCode == RESULT_OK){
@@ -594,9 +645,9 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             // Slime
             monster = new Monster("monster", 15, 15, 1, 5, 5, 5, 5, 0, 0, 5, 5, 5);
             runOnUiThread(new Runnable() {
-              public void run() {
-                  monsterImage.setImageResource(R.drawable.slime);
-              }
+                public void run() {
+                    monsterImage.setImageResource(R.drawable.slime);
+                }
             });
         } else if (monsterNumber < 2){
             // Skeleton
@@ -617,7 +668,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
         } else {
             // Boss
-            monster = new Monster("boss", 75, 75, 1, 20, 15, 6, 6, 0, 0, 3, 3, 3);
+            monster = new Monster("boss", 75, 75, 1, 20, 15, 6, 6, 0, 0, 5, 5, 5);
             runOnUiThread(new Runnable() {
                 public void run() {
                     monsterImage.setImageResource(R.drawable.android_robot_evil);

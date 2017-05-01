@@ -1,7 +1,9 @@
 package com.example.terry.strat_rpg;
 
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -19,6 +21,8 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Timer;
 
@@ -56,6 +60,10 @@ public class MainActivity extends AppCompatActivity {
     private float soundVolume = 5;
     public static SoundPool soundPool;
     private HashMap<Integer, Integer> soundPoolMap;
+    private SharedPreferences prefs = null;
+    private int saveSlot = 0;
+    private boolean firstRun;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,6 +220,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        prefs = getSharedPreferences("com.example.terry.strat_rpg", MODE_PRIVATE);
+        firstRun = prefs.getBoolean("firstrun", true);
+        System.out.println("firstRun = " + firstRun);
     }
 
     @Override
@@ -263,6 +275,31 @@ public class MainActivity extends AppCompatActivity {
                 mpOpening.stop();
             }
         }, runTime);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (firstRun) {
+            Toast.makeText(getApplicationContext(), "This is the first run", Toast.LENGTH_SHORT).show();
+            String newHeader = "new";
+            FileOutputStream fos;
+            for (int i = 0; i < 3; i++){
+                String filename = "Save_" + i;
+                try {
+                    fos = openFileOutput(filename, Context.MODE_PRIVATE);
+                    fos.write(newHeader.getBytes());
+                    fos.close();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "EXCEPTION", Toast.LENGTH_SHORT).show();
+                }
+                System.out.println(filename);
+            }
+            prefs.edit().putBoolean("firstrun", false).commit();
+        }
     }
 
 
