@@ -18,7 +18,7 @@ public abstract class Agent implements Serializable {
     private int dodgeRate;
     private int armor;
     private int lifeSteal;
-    private float experienceToLevel;
+    private int experienceToLevel;
     private int criticalRate;
     private float attackSpeed;
     private float timeUntilAttack;
@@ -29,19 +29,19 @@ public abstract class Agent implements Serializable {
         this.maxHealth = 10;
         this.currentHealth = 10;
         this.level = 1;
-        this.strength = 5;
+        this.strength = 8;
         this.dexterity = 5;
         this.lifeSteal = 0;
         this.dodgeRate = 10;
         this.armor = 3;
-        this.experienceToLevel = (level*2) + 10;
+        this.experienceToLevel = 5;
         this.criticalRate = 10;
         this.attackSpeed = 2;
         this.timeUntilAttack = attackSpeed * 1000;
     }
 
     public Agent(String agentName, int maxHealth, int currentHealth, int level, int strength, int dexterity,
-                 int dodgeRate, int armor, int lifeSteal, float experienceToLevel, int criticalRate,
+                 int dodgeRate, int armor, int lifeSteal, int experienceToLevel, int criticalRate,
                  float attackSpeed) {
         this.agentName = agentName;
         this.maxHealth = maxHealth;
@@ -106,11 +106,11 @@ public abstract class Agent implements Serializable {
         this.lifeSteal = lifeSteal;
     }
 
-    public float getExperienceToLevel() {
+    public int getExperienceToLevel() {
         return experienceToLevel;
     }
 
-    public void setExperienceToLevel(float experienceToLevel) {
+    public void setExperienceToLevel(int experienceToLevel) {
         this.experienceToLevel = experienceToLevel;
     }
 

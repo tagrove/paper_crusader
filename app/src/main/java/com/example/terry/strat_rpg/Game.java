@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.FrameLayout;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -31,18 +32,13 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
-
-import static android.media.ToneGenerator.MAX_VOLUME;
 import static com.example.terry.strat_rpg.MainActivity.mpOpening;
-import static com.example.terry.strat_rpg.MainActivity.mpSound;
 
 /**
  * Game class for Paper Crusader
  * This class is the activity that will actually run the game loop.  The toolbar will allow
  * the player to navigate through the various upgrades they may purchase.
  *
- * TODO - Add the health bar to the top of the screen
- * TODO - Add a window to display current level and currency available
  * TODO - Add animation for monster death, including EXP and Money granted
  * TODO - Add dialogs for the Equipment and Talent sections
  * TODO - Add the functionality behind the Options button so that it may take the player back to the main activity (Quit game)
@@ -52,8 +48,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
 
     private boolean running = true;
-    private boolean loaded = false;
-
     private static final int DIM_AMOUNT = 220;
     private boolean confirmQuit = false;
     private int timeBetweenTicks = 100;
@@ -63,6 +57,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     private Player player;
     private float musicVolume, soundVolume;
     private FrameLayout gameLayout;
+    private TextView goldTextView, expTextView;
     SoundPool soundPool;
     HashMap<Integer, Integer> soundPoolMap;
 
@@ -172,9 +167,9 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
             if (text.equalsIgnoreCase("new")) {
                 player.setAgentName("player_" + saveSlot);
-                player.setCurrentHealth(50);
-                player.setMaxHealth(50);
-                player.setStrength(10);
+                //player.setCurrentHealth(50);
+                //player.setMaxHealth(50);
+                //player.setStrength(10);
             }
             else {
                 player.setAgentName(text);
@@ -195,6 +190,10 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         }
 
         monster = new Monster();
+
+        // Fresh character for the demo
+        player = new Player();
+        monstersKilledThisRun = 0;
 
         soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
         soundPoolMap = new HashMap<>();
@@ -230,8 +229,14 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         playerHealthBar = (RatingBar) findViewById(R.id.playerHealthBar);
         playerHealthBar.setNumStars(1);
         updatePlayerHealthBar();
-
         changeSongPlaying();
+
+        goldTextView = (TextView) findViewById(R.id.goldEarnedText);
+        goldTextView.setText(Integer.toString(goldEarnedThisRun));
+
+        expTextView = (TextView) findViewById(R.id.expEarnedText);
+        expTextView.setText(Integer.toString(experienceEarnedThisRun));
+
 
     }
 
@@ -426,7 +431,8 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         goldEarnedThisRun += monster.getGoldValue();
         experienceEarnedThisRun += monster.getExpValue();
         initializeMonster(monstersKilledThisRun);
-        // TODO Award Experience / Gold
+        allocateRewards();
+
     }
 
     /**
@@ -453,11 +459,9 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         deathIntent.putExtra("goldEarned", goldEarnedThisRun);
         deathIntent.putExtra("monstersKilled", monstersKilledThisRun);
         deathIntent.putExtra("intSoundVolume", soundVolume);
+
         startActivity(deathIntent);
 
-
-        // This is just for demo purposes.  Normally the monster queue resets, which requires
-        // all of the 'current run' values to reset to 0.
         player.setCurrentHealth(player.getMaxHealth());
         updatePlayerHealthBar();
 
@@ -465,6 +469,14 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         experienceEarnedThisRun = 0;
         monstersKilledThisRun = 0;
         initializeMonster(monstersKilledThisRun);
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                goldTextView.setText(Integer.toString(goldEarnedThisRun));
+                expTextView.setText(Integer.toString(experienceEarnedThisRun));
+
+            }
+        });
         // TODO Open Activity that allows player to see stats of the current run
 
         // TODO Open Activity that allows player to purchase upgrades
@@ -667,7 +679,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
      * @param monsterNumber - how many monsters have been killed thus far
      */
     public void initializeMonster(int monsterNumber){
-        if (monsterNumber < 1){
+        if (monsterNumber < 3){
             // Slime
             monster = new Monster("monster", 15, 15, 1, 5, 5, 5, 5, 0, 0, 5, 5, 1, 2);
             runOnUiThread(new Runnable() {
@@ -675,7 +687,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                     monsterImage.setImageResource(R.drawable.slime);
                 }
             });
-        } else if (monsterNumber < 2){
+        } else if (monsterNumber < 6){
             // Skeleton
             monster = new Monster("monster", 25, 25, 1, 8, 8, 4, 4, 0, 0, 5, 5, 2, 5);
             runOnUiThread(new Runnable() {
@@ -683,7 +695,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
                     monsterImage.setImageResource(R.drawable.goblin);
                 }
             });
-        } else if (monsterNumber < 3){
+        } else if (monsterNumber < 9){
             // Wizard
             monster = new Monster("monster", 30, 30, 1, 11, 11, 6, 6, 0, 0, 6, 6, 5, 10);
             runOnUiThread(new Runnable() {
@@ -727,8 +739,26 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
         mpOpening.setLooping(true);
         mpOpening.start();
+    }
 
+    public void allocateRewards(){
+        int currentExp = player.getExperienceToLevel() - monster.getExpValue();
+        if (currentExp <= 0){
+            player.levelUp();
+        } else {
+            player.setExperienceToLevel(currentExp);
+            System.out.println("Did not level up, currently need " + currentExp + " more points.");
+        }
+
+        runOnUiThread(new Runnable() {
+              public void run() {
+                  goldTextView.setText(Integer.toString(goldEarnedThisRun));
+                  expTextView.setText(Integer.toString(experienceEarnedThisRun));
+
+              }
+        });
 
 
     }
+
 }

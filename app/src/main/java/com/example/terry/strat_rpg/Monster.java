@@ -13,7 +13,7 @@ public class Monster extends Agent {
     }
 
     public Monster(String agentName, int maxHealth, int currentHealth, int level, int strength, int dexterity,
-                   int dodgeRate, int armor, int lifeSteal, float experienceToLevel, int criticalRate, float attackSpeed,
+                   int dodgeRate, int armor, int lifeSteal, int experienceToLevel, int criticalRate, float attackSpeed,
                    int expValue, int goldValue) {
         super(agentName, maxHealth, currentHealth, level, strength, dexterity, dodgeRate, armor,
                 lifeSteal, experienceToLevel, criticalRate, attackSpeed);

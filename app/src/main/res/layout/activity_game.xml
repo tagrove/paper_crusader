@@ -77,6 +77,44 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true" />
+
+            <TextView
+                android:id="@+id/goldEarnedText"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:layout_alignTop="@+id/playerHealthBar"
+                android:layout_toRightOf="@+id/expIconImage"
+                android:text="TextView"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/expEarnedText"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/playerHealthBar"
+                android:text="TextView"
+                android:textSize="16dp" />
+
+            <ImageView
+                android:id="@+id/expIconImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/exp_icon"
+                android:layout_alignParentBottom="true"
+                android:layout_toLeftOf="@+id/expEarnedText"
+                android:layout_alignTop="@+id/expEarnedText" />
+
+            <ImageView
+                android:id="@+id/goldIconImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/coin_icon"
+                android:layout_alignTop="@+id/goldEarnedText"
+                android:layout_toLeftOf="@+id/goldEarnedText"
+                android:layout_toStartOf="@+id/goldEarnedText" />
         </RelativeLayout>
 
         <!-- Relative Layout for the Player and Monster Images -->
