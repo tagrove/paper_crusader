@@ -3,13 +3,13 @@ package com.example.terry.strat_rpg;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatRatingBar;
 import android.widget.Toast;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +32,10 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
 
+import static android.media.ToneGenerator.MAX_VOLUME;
+import static com.example.terry.strat_rpg.MainActivity.mpOpening;
+import static com.example.terry.strat_rpg.MainActivity.mpSound;
+
 /**
  * Game class for Paper Crusader
  * This class is the activity that will actually run the game loop.  The toolbar will allow
@@ -48,6 +52,8 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
 
     private boolean running = true;
+    private boolean loaded = false;
+
     private static final int DIM_AMOUNT = 220;
     private boolean confirmQuit = false;
     private int timeBetweenTicks = 100;
@@ -59,6 +65,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     private FrameLayout gameLayout;
     SoundPool soundPool;
     HashMap<Integer, Integer> soundPoolMap;
+
 
     private int saveSlot = 0;
     private File saveFile = null;
@@ -200,13 +207,12 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         soundPoolMap.put(5, soundPool.load(this, R.raw.critical_sound, 1));
         soundPoolMap.put(6, soundPool.load(this, R.raw.player_died, 1));
         soundPoolMap.put(7, soundPool.load(this, R.raw.monster_died, 1));
+        soundPoolMap.put(8, soundPool.load(this, R.raw.critical_sound, 1));
 
         playerImage.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View v) {
-                soundPool.play(2, soundVolume, soundVolume, 1, 0, 1f);
+               changeSongPlaying();
             }
-
         });
 
         gameLayout = (FrameLayout) findViewById( R.id.activity_game);
@@ -224,6 +230,21 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         playerHealthBar = (RatingBar) findViewById(R.id.playerHealthBar);
         playerHealthBar.setNumStars(1);
         updatePlayerHealthBar();
+
+        Random ranSong = new Random();
+        int temp = ranSong.nextInt(3);
+        if (temp == 0){
+            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song3);
+        }else if (temp == 0){
+            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song4);
+        }else if (temp == 0){
+            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song1);
+        }
+        mpOpening.setLooping(true);
+
+        // Ensures that the music and sound begin at 50% volume.
+        mpOpening.setVolume(1-musicVolume, 1-musicVolume);
+        mpOpening.start();
 
     }
 
@@ -661,7 +682,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     public void initializeMonster(int monsterNumber){
         if (monsterNumber < 1){
             // Slime
-            monster = new Monster("monster", 15, 15, 1, 5, 5, 5, 5, 0, 0, 5, 5, 5, 1, 2);
+            monster = new Monster("monster", 15, 15, 1, 5, 5, 5, 5, 0, 0, 5, 5, 1, 2);
             runOnUiThread(new Runnable() {
                 public void run() {
                     monsterImage.setImageResource(R.drawable.slime);
@@ -669,7 +690,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             });
         } else if (monsterNumber < 2){
             // Skeleton
-            monster = new Monster("monster", 25, 25, 1, 8, 8, 4, 4, 0, 0, 5, 5, 5, 2, 5);
+            monster = new Monster("monster", 25, 25, 1, 8, 8, 4, 4, 0, 0, 5, 5, 2, 5);
             runOnUiThread(new Runnable() {
                 public void run() {
                     monsterImage.setImageResource(R.drawable.goblin);
@@ -677,7 +698,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             });
         } else if (monsterNumber < 3){
             // Wizard
-            monster = new Monster("monster", 30, 30, 1, 11, 11, 6, 6, 0, 0, 6, 6, 6, 5, 10);
+            monster = new Monster("monster", 30, 30, 1, 11, 11, 6, 6, 0, 0, 6, 6, 5, 10);
             runOnUiThread(new Runnable() {
                 public void run() {
                     monsterImage.setImageResource(R.drawable.skeleton_mage);
@@ -686,7 +707,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
 
         } else {
             // Boss
-            monster = new Monster("boss", 75, 75, 1, 20, 15, 6, 6, 0, 0, 5, 5, 5, 20, 50);
+            monster = new Monster("boss", 75, 75, 1, 20, 15, 6, 6, 0, 0, 5, 5, 20, 50);
             runOnUiThread(new Runnable() {
                 public void run() {
                     monsterImage.setImageResource(R.drawable.android_robot_evil);
@@ -702,7 +723,27 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         playerHealthBar.setMax(player.getMaxHealth());
         playerHealthBar.setRating(player.getCurrentHealth() * playerHealthBar.getStepSize());
 
-        System.out.println("Current player health = " + player.getCurrentHealth());
-        System.out.println("Max player health = " + player.getMaxHealth());
+    }
+
+    public void changeSongPlaying(){
+        mpOpening.stop();
+        mpOpening.release();
+
+
+
+        Random ranSong = new Random();
+        int temp = ranSong.nextInt(3);
+        if (temp == 0){
+            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song3);
+        }else if (temp == 1){
+            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song4);
+        }else if (temp == 2){
+            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song1);
+        }
+
+        mpOpening.start();
+
+
+
     }
 }

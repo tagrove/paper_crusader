@@ -16,10 +16,10 @@ public class Player extends Agent{
     }
 
     public Player(String agentName, int maxHealth, int currentHealth, int level, int strength, int dexterity, int dodgeRate, int armor,
-                  int lifeSteal, float experienceToLevel, int criticalRate, float attackSpeed, float timeUntilAttack) {
+                  int lifeSteal, float experienceToLevel, int criticalRate, float attackSpeed) {
 
                   super(agentName, maxHealth, currentHealth, level, strength, dexterity, dodgeRate, armor, lifeSteal,
-                  experienceToLevel, criticalRate, attackSpeed, timeUntilAttack);
+                  experienceToLevel, criticalRate, attackSpeed);
     }
 
 }

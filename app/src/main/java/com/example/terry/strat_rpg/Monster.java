@@ -14,9 +14,9 @@ public class Monster extends Agent {
 
     public Monster(String agentName, int maxHealth, int currentHealth, int level, int strength, int dexterity,
                    int dodgeRate, int armor, int lifeSteal, float experienceToLevel, int criticalRate, float attackSpeed,
-                   float timeUntilAttack, int expValue, int goldValue) {
+                   int expValue, int goldValue) {
         super(agentName, maxHealth, currentHealth, level, strength, dexterity, dodgeRate, armor,
-                lifeSteal, experienceToLevel, criticalRate, attackSpeed, timeUntilAttack);
+                lifeSteal, experienceToLevel, criticalRate, attackSpeed);
         this.expValue = expValue;
         this.goldValue = goldValue;
     }

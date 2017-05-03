@@ -224,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences("com.example.terry.strat_rpg", MODE_PRIVATE);
         firstRun = prefs.getBoolean("firstrun", true);
-        System.out.println("firstRun = " + firstRun);
     }
 
     @Override
@@ -269,10 +268,6 @@ public class MainActivity extends AppCompatActivity {
 
                 /* Applies slide out / slide in animations */
                 overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
-                Timer timer = new Timer(true);
-
-                // TODO - figure out how to make the music actually fade out.
-                timer.schedule(new FadeMusicOut(), 0, 200);
                 mpOpening.stop();
             }
         }, runTime);
@@ -297,7 +292,6 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "EXCEPTION", Toast.LENGTH_SHORT).show();
                 }
-                System.out.println(filename);
             }
             prefs.edit().putBoolean("firstrun", false).commit();
         }

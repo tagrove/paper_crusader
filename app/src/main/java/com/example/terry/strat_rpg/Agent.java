@@ -42,7 +42,7 @@ public abstract class Agent implements Serializable {
 
     public Agent(String agentName, int maxHealth, int currentHealth, int level, int strength, int dexterity,
                  int dodgeRate, int armor, int lifeSteal, float experienceToLevel, int criticalRate,
-                 float attackSpeed, float timeUntilAttack) {
+                 float attackSpeed) {
         this.agentName = agentName;
         this.maxHealth = maxHealth;
         this.currentHealth = currentHealth;
@@ -55,7 +55,7 @@ public abstract class Agent implements Serializable {
         this.experienceToLevel = experienceToLevel;
         this.criticalRate = criticalRate;
         this.attackSpeed = attackSpeed;
-        this.timeUntilAttack = timeUntilAttack;
+        this.timeUntilAttack = attackSpeed*1000;
     }
 
     public int getMaxHealth() {
