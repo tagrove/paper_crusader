@@ -231,20 +231,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
         playerHealthBar.setNumStars(1);
         updatePlayerHealthBar();
 
-        Random ranSong = new Random();
-        int temp = ranSong.nextInt(3);
-        if (temp == 0){
-            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song3);
-        }else if (temp == 0){
-            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song4);
-        }else if (temp == 0){
-            mpOpening = MediaPlayer.create(this, R.raw.crusaders_song1);
-        }
-        mpOpening.setLooping(true);
-
-        // Ensures that the music and sound begin at 50% volume.
-        mpOpening.setVolume(1-musicVolume, 1-musicVolume);
-        mpOpening.start();
+        changeSongPlaying();
 
     }
 
@@ -728,9 +715,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
     public void changeSongPlaying(){
         mpOpening.stop();
         mpOpening.release();
-
-
-
         Random ranSong = new Random();
         int temp = ranSong.nextInt(3);
         if (temp == 0){
@@ -741,6 +725,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener, Run
             mpOpening = MediaPlayer.create(this, R.raw.crusaders_song1);
         }
 
+        mpOpening.setLooping(true);
         mpOpening.start();
 
 
