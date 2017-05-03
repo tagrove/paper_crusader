@@ -2,6 +2,7 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_game"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -53,11 +54,29 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            <RatingBar
+                android:id="@+id/playerHealthBar"
+                style="@style/healthRatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="1"
+                android:stepSize="100"
+                android:layout_alignTop="@+id/imageView"
+                android:layout_alignLeft="@+id/imageView"
+                android:layout_alignStart="@+id/imageView"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/heart_icon"
+                android:layout_marginLeft="38dp"
+                android:layout_marginStart="38dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
         </RelativeLayout>
 
         <!-- Relative Layout for the Player and Monster Images -->

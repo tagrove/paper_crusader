@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         mpSound = MediaPlayer.create(this, R.raw.crusader_menu_confirm);
         mpOpening = MediaPlayer.create(this, R.raw.crusader_opening_theme);
+
         // Ensures that the music and sound begin at 50% volume.
         musicVolume = (float)(Math.log(MAX_VOLUME - 5)/Math.log(MAX_VOLUME));
         mpOpening.setVolume(1-musicVolume, 1-musicVolume);

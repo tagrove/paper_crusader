@@ -56,7 +56,7 @@ public class ConfirmationPopUp extends Activity {
         saveSlot = (int)b.get("saveSlot");
         soundVolume = (float) b.get("intSoundVolume");
 
-        TextView confirmText = (TextView) findViewById(R.id.quitGameText);
+        TextView confirmText = (TextView) findViewById(R.id.monstersDefeatedText);
         String gameText = "Load Game " + saveSlot + "?";
         confirmText.setText(gameText);
 

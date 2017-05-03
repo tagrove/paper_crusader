@@ -14,6 +14,13 @@
         <item name="android:maxHeight">48dip</item>
     </style>
 
+    <style name="healthRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/health_rating_bar_full</item>
+        <item name="android:minHeight">48dip</item>
+        <item name="android:maxHeight">200dip</item>
+    </style>
+
+
     <style name="equipment_toolbar_style" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">@drawable/equipment_toolbar</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
